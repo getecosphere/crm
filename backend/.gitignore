@@ -1,0 +1,17 @@
+# rust project artifacts
+/target/
+**/*.rs.bk
+
+# Local configuration and tooling
+.env
+.env.local
+.env.*.local
+*.log
+logs/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.claude/
+.codegraph/
+.cursor/

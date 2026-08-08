@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A practical introduction to Eco and Domain-Driven Design." />
+  <title>crm · Eco starter</title>
+  <style>
+    :root { color-scheme: light; --ink:#10203d; --muted:#5f718c; --line:#dce5f0; --paper:#fffdf9; --soft:#f4f7fb; --blue:#3566bf; --blue-soft:#dce9fc; --cream:#fff0d9; --green:#2a8b69; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--soft); color:var(--ink); font:16px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .shell { max-width:1120px; margin:0 auto; padding:clamp(24px,5vw,72px) 24px 56px; }
+    .hero { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(240px,.8fr); gap:clamp(28px,6vw,80px); align-items:center; padding:clamp(28px,6vw,72px); background:var(--paper); border:1px solid var(--line); border-radius:28px; box-shadow:0 18px 44px rgba(31,57,95,.08); }
+    .eyebrow { margin:0 0 14px; color:var(--blue); font-size:.78rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    h1 { max-width:12ch; margin:0; font-size:clamp(2.5rem,6vw,5.2rem); line-height:.96; letter-spacing:-.065em; } h2 { margin:0 0 12px; font-size:clamp(1.45rem,2.5vw,2.15rem); letter-spacing:-.04em; }
+    .lede { max-width:53ch; margin:22px 0 0; color:var(--muted); font-size:clamp(1.03rem,2vw,1.22rem); } .mark { width:min(100%,360px); justify-self:center; }
+    .tabs { display:flex; gap:0; margin-top:34px; overflow:auto; border-bottom:1px solid var(--line); } .tab { appearance:none; border:0; border-bottom:3px solid transparent; padding:15px 18px; background:transparent; color:var(--muted); font:inherit; font-weight:750; white-space:nowrap; cursor:pointer; } .tab[aria-selected="true"] { color:var(--ink); border-color:var(--blue); }
+    .chapter { display:none; padding:clamp(24px,4vw,52px) 0 0; } .chapter.active { display:block; } .chapter > p { max-width:68ch; color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:26px; } .card { min-height:180px; padding:24px; background:var(--paper); border:1px solid var(--line); border-radius:18px; } .card h3 { margin:0 0 8px; font-size:1.08rem; } .card p { margin:0; color:var(--muted); }
+    .map { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:12px; align-items:center; margin-top:30px; padding:26px; background:var(--paper); border:1px solid var(--line); border-radius:20px; } .domain { min-height:138px; padding:20px; border:2px solid var(--ink); border-radius:16px; background:var(--cream); } .domain:nth-of-type(3) { background:var(--blue-soft); } .domain:last-child { background:#e3f1eb; } .domain strong { display:block; font-size:1.08rem; } .domain span { display:block; margin-top:8px; color:#405270; font-size:.91rem; } .arrow { color:var(--blue); font-size:1.9rem; font-weight:700; }
+    .path { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:26px; } .step { position:relative; padding:22px 18px 18px; border-top:3px solid var(--blue); background:var(--paper); } .step small { display:block; margin-bottom:8px; color:var(--blue); font-weight:800; letter-spacing:.08em; text-transform:uppercase; } .step strong { font-size:1.05rem; }
+    .proof { margin-top:26px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; padding:20px 22px; background:#ecf7f1; border:1px solid #b9e2cf; border-radius:16px; } .proof strong { color:#17694f; } .proof code { color:#17694f; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; } .status { color:#4c607d; }
+    .replace { margin-top:26px; padding:26px; border-left:4px solid var(--blue); background:var(--paper); } .replace code { display:inline-block; padding:2px 6px; background:var(--soft); color:var(--ink); font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (max-width:760px) { .hero { grid-template-columns:1fr; } .mark { max-width:230px; } .grid,.path { grid-template-columns:1fr; } .map { grid-template-columns:1fr; } .arrow { transform:rotate(90deg); text-align:center; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div><p class="eyebrow">Eco starter composition</p><h1>Build systems that can grow without losing their shape.</h1><p class="lede">Eco turns Domain-Driven Design into a practical workspace: clear domains, explicit runtime contracts, and one composition layer that makes them feel like one application.</p></div>
+      <img class="mark" src="/images/ecology-mark.webp" alt="Three connected domains forming an Ecology system" />
+    </section>
+    <nav class="tabs" aria-label="Eco guide chapters">
+      <button class="tab" type="button" role="tab" aria-selected="true" aria-controls="why" id="why-tab">Why Eco</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="ddd" id="ddd-tab">DDD map</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="path" id="path-tab">Build path</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="next" id="next-tab">Your placeholder</button>
+    </nav>
+    <section class="chapter active" role="tabpanel" id="why" aria-labelledby="why-tab"><p class="eyebrow">Chapter 01</p><h2>Eco keeps the seams visible.</h2><p>A scalable product is not one enormous codebase. It is a set of bounded contexts that can change at their own pace, composed deliberately at the edge. Eco keeps the operational details—repositories, runtimes, CTs, deployment, and service exposure—in that same deliberate shape.</p><div class="grid"><article class="card"><h3>Domains stay focused</h3><p>Each repository owns one meaningful capability and its data contract.</p></article><article class="card"><h3>Composition stays human</h3><p>The project composition owns the experience that connects those capabilities.</p></article><article class="card"><h3>Operations stay explicit</h3><p>The estate manifest describes where services run and what they need.</p></article></div></section>
+    <section class="chapter" role="tabpanel" id="ddd" aria-labelledby="ddd-tab"><p class="eyebrow">Chapter 02</p><h2>DDD is a conversation about boundaries.</h2><p>Domains communicate through contracts. They do not reach into one another's implementation or database. The composition layer speaks to those contracts and turns them into a coherent customer journey.</p><div class="map"><div class="domain"><strong>Identity</strong><span>Who is this person? What may they do?</span></div><div class="arrow" aria-hidden="true">→</div><div class="domain"><strong>Inventory</strong><span>What is owned, valued, and available?</span></div><div class="arrow" aria-hidden="true">→</div><div class="domain"><strong>Marketplace</strong><span>What can be discovered or traded?</span></div></div></section>
+    <section class="chapter" role="tabpanel" id="path" aria-labelledby="path-tab"><p class="eyebrow">Chapter 03</p><h2>Eco gives the first vertical slice a home.</h2><p>Start with a visible page and a small API. Then replace the placeholder with real domains as your product becomes clearer.</p><div class="path"><div class="step"><small>01</small><strong>Describe the estate</strong></div><div class="step"><small>02</small><strong>Compose services</strong></div><div class="step"><small>03</small><strong>Run with Eco</strong></div><div class="step"><small>04</small><strong>Grow bounded contexts</strong></div></div><div class="proof"><strong>Runtime proof</strong><span id="backend-status" class="status">Contacting the Rust backend…</span></div></section>
+    <section class="chapter" role="tabpanel" id="next" aria-labelledby="next-tab"><p class="eyebrow">Chapter 04</p><h2>This starter is meant to be replaced.</h2><p><code>crm_composition/frontend</code> and, if selected, <code>crm_composition/backend</code> are runnable placeholders. Delete them when you are ready to create the actual project with the vibecoding model you choose.</p><div class="replace"><strong>Keep the composition contract.</strong><br />Your future frontend remains the public entry point; your future backend remains a separately-owned API. Eco will continue to provision and run what the manifest declares.</div></section>
+  </main>
+  <script src="/runtime-config.js"></script>
+  <script>
+    const tabs = [...document.querySelectorAll('.tab')];
+    const chapters = [...document.querySelectorAll('.chapter')];
+    tabs.forEach((tab) => tab.addEventListener('click', () => { tabs.forEach((item) => item.setAttribute('aria-selected', String(item === tab))); chapters.forEach((chapter) => chapter.classList.toggle('active', chapter.id === tab.getAttribute('aria-controls'))); }));
+    fetch(window.__ECO_BACKEND_URL__ + '/helloworld').then((response) => response.ok ? response.text() : Promise.reject()).then((message) => { document.querySelector('#backend-status').textContent = message; }).catch(() => { document.querySelector('#backend-status').textContent = 'The backend will appear here after the optional Rust service starts.'; });
+  </script>
+</body>
+</html>

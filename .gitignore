@@ -1,0 +1,38 @@
+# eco-generated runtime files
+ecosystem.config.js
+.configure-state
+
+# environment secrets
+.env
+.env.local
+.env.*.local
+
+# dependencies
+node_modules/
+
+# build output
+dist/
+build/
+.next/
+
+# logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editors
+.idea/
+*.iml
+
+# AI agent artifacts
+.claude/
+.codegraph/
+.kiro/
+.cursor/
+.codeium/
+.copilot/
+.aider*
+.continue/
