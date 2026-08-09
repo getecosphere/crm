@@ -53,8 +53,8 @@ const { title = 'CRM' } = Astro.props;
 </body>
 </html>
 
-<script>
-  import { getSession, isLoggedIn, logout, getUser, getToken } from '../lib/session.js';
+<script type="module">
+  import { getSession, isLoggedIn, getUser } from '../lib/session.js';
 
   function setupAuth() {
     if (!isLoggedIn()) {
