@@ -1,0 +1,164 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout title="Register Customer" description="Register a customer and submit product-interest leads in one step.">
+  <div class="max-w-4xl space-y-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="section-title">Customer Information</h3>
+        <p class="text-xs text-surface-400 mt-1">Fields marked * are required.</p>
+      </div>
+      <form id="form" class="card-body grid grid-cols-1 sm:grid-cols-2 gap-4" novalidate>
+        <div id="form-error" class="hidden sm:col-span-2 p-3 rounded-lg bg-red-50 text-red-600 text-sm"></div>
+        <div id="dup-warning" class="hidden sm:col-span-2 p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+          <p class="font-medium mb-1">A customer with this phone number already exists.</p>
+          <p id="dup-details" class="text-amber-700"></p>
+        </div>
+
+        <div>
+          <label class="label" for="first_name">First name *</label>
+          <input id="first_name" class="input" required autofocus placeholder="John" />
+        </div>
+        <div>
+          <label class="label" for="last_name">Last name *</label>
+          <input id="last_name" class="input" required placeholder="Smith" />
+        </div>
+        <div>
+          <label class="label" for="phone">Phone *</label>
+          <input id="phone" class="input" required placeholder="+62 812 3456 7890" />
+        </div>
+        <div>
+          <label class="label" for="email">Email</label>
+          <input id="email" type="email" class="input" placeholder="john@example.com" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="label" for="address">Address</label>
+          <input id="address" class="input" placeholder="Street address" />
+        </div>
+        <div>
+          <label class="label" for="city">City</label>
+          <input id="city" class="input" placeholder="City" />
+        </div>
+        <div>
+          <label class="label" for="postcode">Postcode</label>
+          <input id="postcode" class="input" placeholder="Postcode" />
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="section-title">What is the customer interested in?</h3>
+        <p class="text-xs text-surface-400 mt-1">Select one or more product categories — each becomes a lead.</p>
+      </div>
+      <div id="categories" class="card-body grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+    </div>
+
+    <div class="flex justify-end">
+      <button id="submit-btn" class="btn-primary px-6 py-3 text-base">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        Save Customer &amp; Submit Lead
+      </button>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { crmGet, crmPost } from '../../../lib/api.js';
+  import { toast, escapeHtml } from '../../../lib/ui.js';
+
+  const categoriesEl = document.getElementById('categories');
+  const form = document.getElementById('form');
+  const phoneInput = document.getElementById('phone');
+  const dupWarning = document.getElementById('dup-warning');
+  const dupDetails = document.getElementById('dup-details');
+  let customers = [];
+  let dupTimer = null;
+
+  async function loadCategories() {
+    try {
+      const cats = await crmGet('/product-categories');
+      if (cats.length === 0) {
+        categoriesEl.innerHTML = '<p class="text-sm text-surface-500 col-span-2">No product categories are available yet. Ask your administrator to add some.</p>';
+        return;
+      }
+      categoriesEl.innerHTML = cats.map((c) => `
+        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-surface-50 cursor-pointer">
+          <input type="checkbox" value="${c.id}" class="category-check mt-0.5 w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500" />
+          <span class="text-sm">
+            <span class="font-medium text-surface-800">${escapeHtml(c.name)}</span>
+            ${c.description ? `<span class="block text-xs text-surface-400">${escapeHtml(c.description)}</span>` : ''}
+          </span>
+        </label>`).join('');
+    } catch (err) {
+      categoriesEl.innerHTML = `<p class="text-sm text-red-600 col-span-2">${err.message}</p>`;
+    }
+  }
+
+  async function checkDuplicate() {
+    const phone = phoneInput.value.trim();
+    if (!phone) { dupWarning.classList.add('hidden'); return; }
+    try {
+      const match = (customers || []).find((c) => c.phone === phone);
+      if (match) {
+        dupDetails.textContent = `${match.firstName} ${match.lastName} · ${match.phone}`;
+        dupWarning.classList.remove('hidden');
+      } else {
+        dupWarning.classList.add('hidden');
+      }
+    } catch {
+      dupWarning.classList.add('hidden');
+    }
+  }
+
+  phoneInput.addEventListener('input', () => {
+    clearTimeout(dupTimer);
+    dupTimer = setTimeout(checkDuplicate, 400);
+  });
+
+  document.getElementById('submit-btn').addEventListener('click', async () => {
+    const errorBox = document.getElementById('form-error');
+    const btn = document.getElementById('submit-btn');
+    const selected = [...document.querySelectorAll('.category-check:checked')].map((i) => i.value);
+
+    errorBox.classList.add('hidden');
+
+    if (!document.getElementById('first_name').value.trim() ||
+        !document.getElementById('last_name').value.trim() ||
+        !phoneInput.value.trim()) {
+      errorBox.textContent = 'First name, last name and phone are required.';
+      errorBox.classList.remove('hidden');
+      return;
+    }
+    if (selected.length === 0) {
+      errorBox.textContent = 'Select at least one product category to submit a lead.';
+      errorBox.classList.remove('hidden');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    try {
+      const data = await crmPost('/customers', {
+        firstName: document.getElementById('first_name').value.trim(),
+        lastName: document.getElementById('last_name').value.trim(),
+        phone: phoneInput.value.trim(),
+        email: document.getElementById('email').value.trim() || undefined,
+        address: document.getElementById('address').value.trim() || undefined,
+        city: document.getElementById('city').value.trim() || undefined,
+        postcode: document.getElementById('postcode').value.trim() || undefined,
+        productCategoryIds: selected,
+      });
+      toast(`Customer registered — ${data.leads.length} lead${data.leads.length > 1 ? 's' : ''} submitted`);
+      window.location.href = `/sales/customer/?id=${data.customerId}/`;
+    } catch (err) {
+      errorBox.textContent = err.message;
+      errorBox.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Save Customer & Submit Lead';
+    }
+  });
+
+  Promise.all([loadCategories(), crmGet('/customers').then((c) => { customers = c; }).catch(() => {})]);
+</script>

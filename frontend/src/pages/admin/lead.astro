@@ -1,0 +1,120 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Lead" description="Lead detail and partner assignment.">
+  <div class="space-y-6">
+    <div id="header" class="card p-6"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div id="customer" class="card"></div>
+      <div id="assign" class="card"></div>
+    </div>
+
+    <div id="assignments" class="card"></div>
+  </div>
+</Layout>
+
+<script>
+  import { crmGet, crmPut } from '../../lib/api.js';
+  import { statusBadge, formatDate, loadingState, errorState, emptyState, toast, escapeHtml } from '../../lib/ui.js';
+
+  const id = new URLSearchParams(window.location.search).get('id') || '';
+
+  async function load() {
+    const header = document.getElementById('header');
+    loadingState(header, 'Loading lead…');
+    try {
+      const d = await crmGet(`/leads/${id}`);
+      const l = d.lead;
+
+      header.innerHTML = `
+        <p class="breadcrumb"><a href="/admin/leads/">Leads</a> <span>/</span> ${escapeHtml(l.customerName)}</p>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(l.customerName)}</h2>
+            <p class="mt-1 text-sm text-surface-500">${escapeHtml(d.category?.name || l.categoryName)} · submitted by ${escapeHtml(l.salesRepName)} · ${formatDate(l.createdAt)}</p>
+          </div>
+          <div class="flex gap-2">${(l.assignments || []).map((a) => statusBadge(a.status)).join('') || statusBadge('UNASSIGNED')}</div>
+        </div>`;
+
+      const customerEl = document.getElementById('customer');
+      const c = d.customer || {};
+      customerEl.innerHTML = `
+        <div class="card-header"><h3 class="section-title">Customer Details</h3></div>
+        <div class="card-body space-y-3 text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${field('Phone', c.phone)}${field('Email', c.email)}${field('City', c.city)}${field('Postcode', c.postcode)}
+            ${c.address ? `<div class="sm:col-span-2">${field('Address', c.address)}</div>` : ''}
+          </div>
+        </div>`;
+
+      const assignEl = document.getElementById('assign');
+      const eligible = d.eligiblePartners || [];
+      const already = (l.assignments || []).map((a) => a.partnerId);
+      assignEl.innerHTML = `
+        <div class="card-header flex items-center justify-between">
+          <h3 class="section-title">Assign Partners</h3>
+        </div>
+        <div class="card-body">
+          ${eligible.length === 0
+            ? '<p class="text-sm text-surface-500">No eligible partners are assigned to the <strong>' + escapeHtml(d.category?.name || '') + '</strong> category yet.</p>'
+            : `<div id="partner-list" class="space-y-2">
+                ${eligible.map((p) => `
+                  <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-surface-50 cursor-pointer ${already.includes(p.id) ? 'bg-primary-50/40' : ''}">
+                    <input type="checkbox" value="${p.id}" ${already.includes(p.id) ? 'checked' : ''} class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500" />
+                    <span class="text-sm font-medium text-surface-700 flex-1">${escapeHtml(p.name)}</span>
+                    ${already.includes(p.id) ? '<span class="badge bg-primary-50 text-primary-700">Assigned</span>' : ''}
+                  </label>`).join('')}
+              </div>
+              <button id="assign-btn" class="btn-primary w-full mt-4">Save assignments</button>`}
+        </div>`;
+
+      const btn = document.getElementById('assign-btn');
+      if (btn) {
+        btn.addEventListener('click', async () => {
+          const ids = [...document.querySelectorAll('#partner-list input:checked')].map((i) => i.value);
+          btn.disabled = true;
+          btn.textContent = 'Saving…';
+          try {
+            await crmPut(`/leads/${id}/assign`, { partnerCompanyIds: ids });
+            toast('Lead assignments saved');
+            load();
+          } catch (err) {
+            toast(err.message, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Save assignments';
+          }
+        });
+      }
+
+      const assignmEl = document.getElementById('assignments');
+      const list = l.assignments || [];
+      if (list.length === 0) {
+        emptyState(assignmEl, 'Not assigned yet', 'Assign this lead to one or more partner companies to begin processing.');
+      } else {
+        assignmEl.innerHTML = `
+          <div class="card-header"><h3 class="section-title">Assignments (${list.length})</h3></div>
+          <div class="overflow-x-auto">
+            <table class="table min-w-full">
+              <thead><tr><th>Partner</th><th>Status</th><th>Assigned</th></tr></thead>
+              <tbody>
+                ${list.map((a) => `
+                  <tr><td class="font-medium text-surface-900">${escapeHtml(a.partnerName)}</td><td>${statusBadge(a.status)}</td><td class="text-surface-500">${formatDate(a.assignedAt)}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`;
+      }
+    } catch (err) {
+      errorState(header, err.message);
+    }
+  }
+
+  function field(label, value) {
+    return value
+      ? `<div><p class="text-xs text-surface-400 mb-0.5">${label}</p><p class="text-surface-700">${escapeHtml(value)}</p></div>`
+      : '';
+  }
+
+  load();
+</script>

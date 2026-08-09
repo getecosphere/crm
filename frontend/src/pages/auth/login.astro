@@ -1,104 +1,113 @@
 ---
 import '../../styles/global.css';
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || '';
+const pageUrl = siteUrl ? `${siteUrl}/auth/login/` : '/auth/login/';
 ---
 
 <!doctype html>
 <html lang="en" class="h-full">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Login | CRM Composition</title>
-  <link rel="icon" href="/favicon.svg"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in | CRM</title>
+  <meta name="description" content="Sign in to the CRM lead distribution platform." />
+  <link rel="canonical" href={pageUrl} />
+  <meta property="og:title" content="Sign in | CRM" />
+  <meta property="og:description" content="Sign in to the CRM lead distribution platform." />
+  <meta property="og:url" content={pageUrl} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CRM" />
+  <link rel="icon" href="/favicon.svg" />
 </head>
-<body class="h-full bg-gradient-to-br from-primary-900 via-primary-800 to-surface-900 flex items-center justify-center p-4">
+<body class="min-h-full bg-gradient-to-br from-primary-950 via-primary-900 to-surface-900 flex flex-col items-center justify-center p-6">
   <div class="w-full max-w-md">
     <div class="text-center mb-8">
-      <svg class="w-12 h-12 text-primary-300 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-      </svg>
-      <h1 class="mt-4 text-2xl font-semibold text-white">CRM Composition</h1>
-      <p class="mt-1 text-primary-200 text-sm">Sign in to your account</p>
+      <div class="w-14 h-14 rounded-2xl bg-primary-500/15 flex items-center justify-center mx-auto">
+        <svg class="w-8 h-8 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      </div>
+      <h1 class="mt-4 text-2xl font-semibold text-white">CRM</h1>
+      <p class="mt-1 text-primary-200 text-sm">Lead Distribution Platform — sign in to continue</p>
     </div>
 
     <div class="bg-white rounded-2xl shadow-xl p-8">
-      <form id="login-form" class="space-y-5">
-        <div id="error-msg" class="hidden p-3 rounded-lg bg-danger-50 text-danger-600 text-sm"></div>
+      <form id="login-form" class="space-y-5" novalidate>
+        <div id="error-box" class="hidden p-3 rounded-lg bg-red-50 text-red-600 text-sm" role="alert"></div>
 
         <div>
-          <label class="block text-sm font-medium text-surface-700 mb-1.5">Email</label>
-          <input type="email" name="email" required autocomplete="email"
-            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-surface-900 placeholder-surface-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-shadow"
-            placeholder="you@company.com"/>
+          <label for="username" class="label">Email or username</label>
+          <input id="username" name="username" type="text" required autocomplete="username" class="input" placeholder="you@company.com" />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-surface-700 mb-1.5">Password</label>
-          <input type="password" name="password" required autocomplete="current-password"
-            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-surface-900 placeholder-surface-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-shadow"
-            placeholder="••••••••"/>
+          <label for="password" class="label">Password</label>
+          <input id="password" name="password" type="password" required autocomplete="current-password" class="input" placeholder="••••••••" />
         </div>
 
-        <button type="submit"
-          class="w-full py-2.5 px-4 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors disabled:opacity-50">
+        <button type="submit" id="submit-btn" class="btn-primary w-full">
           Sign in
         </button>
       </form>
     </div>
 
-    <p class="mt-6 text-center text-sm text-primary-200">
-      Need an account? Contact your administrator.
-    </p>
+    <p class="mt-6 text-center text-sm text-primary-200">Need an account? Contact your administrator.</p>
   </div>
 </body>
 </html>
 
 <script>
-  const AUTH_URL = import.meta.env.PUBLIC_AUTH_URL;
+  import { saveSession, clearSession } from '../../lib/session.js';
+  import { crmGet } from '../../lib/api.js';
+  import { toast } from '../../lib/ui.js';
+
+  const AUTH = (import.meta.env.PUBLIC_AUTH_URL || '/api').replace(/\/$/, '');
+
+  function roleHome(role) {
+    if (role === 'ADMIN') return '/admin/dashboard/';
+    if (role === 'SALES_REP') return '/sales/dashboard/';
+    return '/partner/dashboard/';
+  }
 
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const form = e.target;
-    const btn = form.querySelector('button');
-    const errorEl = document.getElementById('error-msg');
+    const btn = document.getElementById('submit-btn');
+    const errorBox = document.getElementById('error-box');
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
 
+    errorBox.classList.add('hidden');
     btn.disabled = true;
-    btn.textContent = 'Signing in...';
-    errorEl.classList.add('hidden');
+    btn.textContent = 'Signing in…';
 
     try {
-      const res = await fetch(`${AUTH_URL}/api/auth/login`, {
+      const res = await fetch(`${AUTH}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: form.email.value,
-          password: form.password.value,
-        }),
+        body: JSON.stringify({ username, password }),
       });
-
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: 'Login failed' }));
+        const err = await res.json().catch(() => ({}));
         throw new Error(err.message || err.error || 'Invalid credentials');
       }
-
       const data = await res.json();
+      saveSession({ token: data.token, user: data.user, expires_in: data.expiresIn });
 
-      const session = {
-        token: data.token,
-        user: data.user,
-        expires_at: Date.now() + ((data.expiresIn || 86400) * 1000),
-      };
+      let profile = null;
+      try {
+        profile = await crmGet('/users/me');
+      } catch (err) {
+        clearSession();
+        errorBox.textContent = err.message || 'This account is not provisioned in the CRM. Contact your administrator.';
+        errorBox.classList.remove('hidden');
+        return;
+      }
 
-      localStorage.setItem('crm_session', JSON.stringify(session));
-
-      const role = data.user?.role;
-      if (role === 'ADMIN') window.location.href = '/admin/dashboard/';
-      else if (role === 'SALES_REP') window.location.href = '/sales/dashboard/';
-      else if (role === 'PARTNER') window.location.href = '/partner/dashboard/';
-      else window.location.href = '/admin/dashboard/';
+      saveSession({ token: data.token, user: profile, expires_in: data.expiresIn });
+      toast(`Welcome back, ${profile.name || profile.email}!`);
+      window.location.href = roleHome(profile.role);
     } catch (err) {
-      errorEl.textContent = err.message;
-      errorEl.classList.remove('hidden');
+      errorBox.textContent = err.message;
+      errorBox.classList.remove('hidden');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Sign in';

@@ -1,0 +1,73 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Reports" description="Operational reports across representatives, categories, partners and sales.">
+  <div class="space-y-6">
+    <div class="flex flex-wrap gap-2" id="report-tabs"></div>
+    <div id="report-body"></div>
+  </div>
+</Layout>
+
+<script>
+  import { crmGet } from '../../lib/api.js';
+  import { loadingState, errorState, escapeHtml } from '../../lib/ui.js';
+
+  const tabs = document.getElementById('report-tabs');
+  const body = document.getElementById('report-body');
+
+  const REPORTS = [
+    { key: 'customersByRep', label: 'Customers by Sales Rep', empty: 'No customers registered yet.' },
+    { key: 'leadsByRep', label: 'Leads by Sales Rep', empty: 'No leads submitted yet.' },
+    { key: 'leadsByCategory', label: 'Leads by Category', empty: 'No leads yet.' },
+    { key: 'leadsByPartner', label: 'Leads by Partner', empty: 'No leads assigned yet.' },
+    { key: 'salesByPartner', label: 'Sales by Partner', empty: 'No sales registered yet.' },
+    { key: 'statusByPartner', label: 'Lead Status by Partner', empty: 'No assignments yet.' },
+  ];
+
+  let data = null;
+
+  function renderTable(title, rows) {
+    const total = rows.reduce((s, r) => s + Number(r.value || 0), 0);
+    const max = Math.max(...rows.map((r) => Number(r.value || 0)), 1);
+    body.innerHTML = `
+      <div class="card">
+        <div class="card-header"><h3 class="section-title">${title}</h3></div>
+        <div class="card-body">
+          ${rows.length === 0
+            ? '<p class="text-sm text-surface-400 py-4">No data.</p>'
+            : rows.map((r) => `
+              <div class="py-2.5">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-sm font-medium text-surface-700">${escapeHtml(r.label)}</span>
+                  <span class="text-sm font-semibold text-primary-600">${Number(r.value || 0)}</span>
+                </div>
+                <div class="h-1.5 rounded-full bg-surface-100 overflow-hidden">
+                  <div class="h-full bg-primary-500 rounded-full" style="width:${Math.max((Number(r.value) / max) * 100, 2)}%"></div>
+                </div>
+              </div>`).join('')}
+          <p class="text-xs text-surface-400 mt-4">Total: ${total}</p>
+        </div>
+      </div>`;
+  }
+
+  function select(key) {
+    const tab = REPORTS.find((r) => r.key === key);
+    tabs.innerHTML = REPORTS.map((r) => `
+      <button data-key="${r.key}" class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${r.key === key ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-surface-600 border-slate-200 hover:bg-surface-50'}">${r.label}</button>`).join('');
+    tabs.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => select(b.dataset.key)));
+    renderTable(tab.label, data[tab.key] || []);
+  }
+
+  async function load() {
+    loadingState(body, 'Loading reports…');
+    try {
+      data = await crmGet('/reports');
+      select('customersByRep');
+    } catch (err) {
+      errorState(body, err.message);
+    }
+  }
+
+  load();
+</script>

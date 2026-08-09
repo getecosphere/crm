@@ -2,141 +2,117 @@
 import Layout from '../../layouts/Layout.astro';
 ---
 
-<Layout title="Leads">
+<Layout title="Leads" description="All product-interest leads submitted by sales representatives.">
   <div class="space-y-6">
-    <h2 class="text-xl font-semibold text-surface-900">All Leads</h2>
-    <div id="leads-table"></div>
-    <div id="loading" class="flex justify-center py-12"></div>
-  </div>
-
-  <dialog id="assign-modal" class="group fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 opacity-0 transition-opacity open:opacity-100">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md scale-95 transition-transform group-open:scale-100">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-        <h3 class="text-lg font-semibold text-surface-900">Assign Lead to Partner</h3>
-        <button type="button" onclick="closeAssignModal()" class="p-1 rounded-lg text-surface-400 hover:text-surface-600 hover:bg-surface-100">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <div class="p-6">
-        <input type="hidden" id="assign-lead-id"/>
-        <label class="block text-sm font-medium text-surface-700 mb-2">Select Partner Company</label>
-        <select id="assign-partner-select" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-surface-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
-          <option value="">Select a partner...</option>
-        </select>
-        <div id="assign-error" class="hidden mt-3 p-3 rounded-lg bg-danger-50 text-danger-600 text-sm"></div>
-        <div class="flex justify-end gap-3 mt-6">
-          <button type="button" onclick="closeAssignModal()" class="px-4 py-2 rounded-lg border border-slate-300 text-surface-700 text-sm font-medium hover:bg-surface-50">Cancel</button>
-          <button type="button" id="assign-confirm" class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-50">Assign</button>
-        </div>
-      </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <input id="search" type="search" placeholder="Search customer…" class="input" />
+      <select id="filter-status" class="input">
+        <option value="">All statuses</option>
+        <option value="NEW">New</option>
+        <option value="CONTACTED">Contacted</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="SALE">Sale</option>
+        <option value="NO_SALE">No Sale</option>
+        <option value="UNASSIGNED">Unassigned</option>
+      </select>
+      <select id="filter-category" class="input"><option value="">All categories</option></select>
+      <select id="filter-rep" class="input"><option value="">All sales reps</option></select>
     </div>
-  </dialog>
+
+    <p class="text-sm text-surface-500" id="count-label"></p>
+
+    <div class="card overflow-x-auto">
+      <table class="table min-w-full">
+        <thead><tr>
+          <th>Customer</th><th>Category</th><th>Sales Representative</th><th>Partners</th><th>Status</th><th>Created</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
 </Layout>
 
 <script>
-  import { apiGet, apiPut, CRM_URL, PARTNERS_URL } from '../../lib/api.js';
+  import { crmGet } from '../../lib/api.js';
+  import { statusBadge, formatDate, emptyState, skeletonRows, escapeHtml } from '../../lib/ui.js';
 
-  let leads = [];
-  let partners = [];
+  const rows = document.getElementById('rows');
+  const countLabel = document.getElementById('count-label');
+  const search = document.getElementById('search');
+  const status = document.getElementById('filter-status');
+  const category = document.getElementById('filter-category');
+  const rep = document.getElementById('filter-rep');
 
-  async function loadData() {
-    document.getElementById('loading').innerHTML = '<div class="animate-spin w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full"></div>';
-    try {
-      [leads, partners] = await Promise.all([
-        apiGet(`${CRM_URL}/api/crm/leads`),
-        apiGet(`${PARTNERS_URL}/api/partners`),
-      ]);
-    } catch {
-      leads = [];
-      partners = [];
-    }
-    document.getElementById('loading').innerHTML = '';
-    render();
-  }
+  let all = [];
+  let timer = null;
 
-  function statusBadge(status) {
-    const colors = { new: 'bg-blue-100 text-blue-700', contacted: 'bg-yellow-100 text-yellow-700', quoted: 'bg-orange-100 text-orange-700', negotiating: 'bg-purple-100 text-purple-700', won: 'bg-green-100 text-green-700', lost: 'bg-red-100 text-red-700' };
-    const c = colors[status] || colors.new;
-    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${c}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+  function statusSummary(assignments) {
+    const list = assignments || [];
+    if (list.length === 0) return statusBadge('UNASSIGNED');
+    return list.map((a) => `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600">${escapeHtml(a.partnerName)} ${statusBadge(a.status)}</span>`).join('');
   }
 
   function render() {
-    const el = document.getElementById('leads-table');
-    if (!leads.length) {
-      el.innerHTML = '<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center text-surface-400">No leads found.</div>';
+    const q = search.value.trim().toLowerCase();
+    const s = status.value;
+    const c = category.value;
+    const r = rep.value;
+
+    let filtered = all;
+    if (q) filtered = filtered.filter((l) => l.customerName.toLowerCase().includes(q));
+    if (s) {
+      if (s === 'UNASSIGNED') filtered = filtered.filter((l) => (l.assignments || []).length === 0);
+      else filtered = filtered.filter((l) => (l.assignments || []).some((a) => a.status === s));
+    }
+    if (c) filtered = filtered.filter((l) => l.categoryId === c);
+    if (r) filtered = filtered.filter((l) => l.salesRepId === r);
+
+    countLabel.textContent = `Showing ${filtered.length} of ${all.length} leads`;
+
+    if (all.length === 0) {
+      countLabel.textContent = '';
+      rows.innerHTML = '';
+      emptyState(document.querySelector('.card'), 'No leads yet', 'Leads appear here once sales representatives register customers and submit their product interests.', '<a href="/admin/users/" class="btn-primary">Add a sales representative</a>');
       return;
     }
-    el.innerHTML = `
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <table class="w-full text-sm">
-          <thead><tr class="border-b border-slate-200 bg-surface-50">
-            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Customer</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Email</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Assigned To</th>
-            <th class="px-6 py-3 text-right text-xs font-semibold text-surface-500 uppercase">Actions</th>
-          </tr></thead>
-          <tbody class="divide-y divide-slate-100">
-            ${leads.map(l => `
-              <tr class="hover:bg-surface-50">
-                <td class="px-6 py-4 font-medium text-surface-900">${escapeHtml(l.customerName || l.customer_name || '—')}</td>
-                <td class="px-6 py-4 text-surface-500">${escapeHtml(l.customerEmail || l.customer_email || '—')}</td>
-                <td class="px-6 py-4">${statusBadge(l.status || 'new')}</td>
-                <td class="px-6 py-4 text-surface-500">${escapeHtml(l.partnerName || l.partner_name || l.assignedTo || '—')}</td>
-                <td class="px-6 py-4 text-right">
-                  <button onclick="openAssignModal('${l.id}')" class="text-primary-600 hover:text-primary-800 font-medium text-xs">Assign</button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>`;
+    rows.innerHTML = filtered.length === 0
+      ? '<tr><td colspan="6" class="text-center py-10 text-sm text-surface-400">No leads match your filters.</td></tr>'
+      : filtered.map((l) => `
+        <tr class="cursor-pointer" onclick="window.location.href='/admin/lead/?id=${l.id}/'">
+          <td class="font-medium text-surface-900">${escapeHtml(l.customerName)}</td>
+          <td>${escapeHtml(l.categoryName)}</td>
+          <td class="text-surface-500">${escapeHtml(l.salesRepName)}</td>
+          <td class="flex flex-wrap gap-1">${statusSummary(l.assignments)}</td>
+          <td>${(l.assignments || []).length === 0 ? statusBadge('UNASSIGNED') : ''}</td>
+          <td class="text-surface-500">${formatDate(l.createdAt)}</td>
+        </tr>`).join('');
   }
 
-  function escapeHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  function scheduleRender() {
+    clearTimeout(timer);
+    timer = setTimeout(render, 250);
   }
+  search.addEventListener('input', scheduleRender);
+  status.addEventListener('change', render);
+  category.addEventListener('change', render);
+  rep.addEventListener('change', render);
 
-  function openAssignModal(leadId) {
-    document.getElementById('assign-lead-id').value = leadId;
-    const select = document.getElementById('assign-partner-select');
-    select.innerHTML = '<option value="">Select a partner...</option>' + partners.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
-    document.getElementById('assign-error').classList.add('hidden');
-    document.getElementById('assign-modal').showModal();
-  }
-
-  function closeAssignModal() {
-    document.getElementById('assign-modal').close();
-  }
-
-  document.getElementById('assign-confirm').addEventListener('click', async () => {
-    const leadId = document.getElementById('assign-lead-id').value;
-    const partnerId = document.getElementById('assign-partner-select').value;
-    const errorEl = document.getElementById('assign-error');
-    const btn = document.getElementById('assign-confirm');
-
-    if (!partnerId) {
-      errorEl.textContent = 'Please select a partner.';
-      errorEl.classList.remove('hidden');
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Assigning...';
-    errorEl.classList.add('hidden');
-
+  async function load() {
+    skeletonRows(rows);
     try {
-      await apiPut(`${CRM_URL}/api/crm/leads/${leadId}`, { partnerId });
-      closeAssignModal();
-      await loadData();
+      const [leads, categories, users] = await Promise.all([
+        crmGet('/leads'),
+        crmGet('/product-categories'),
+        crmGet('/users?role=SALES_REP'),
+      ]);
+      all = leads;
+      categories.forEach((c) => category.insertAdjacentHTML('beforeend', `<option value="${c.id}">${escapeHtml(c.name)}</option>`));
+      users.forEach((u) => rep.insertAdjacentHTML('beforeend', `<option value="${u.id}">${escapeHtml(u.name)}</option>`));
+      render();
     } catch (err) {
-      errorEl.textContent = err.message;
-      errorEl.classList.remove('hidden');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Assign';
+      rows.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-sm text-red-600">${err.message}</td></tr>`;
     }
-  });
+  }
 
-  loadData();
+  load();
 </script>

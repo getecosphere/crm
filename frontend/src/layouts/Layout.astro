@@ -1,8 +1,16 @@
 ---
 import '../styles/global.css';
-import Sidebar from '../components/Sidebar.astro';
 
-const { title = 'CRM' } = Astro.props;
+const {
+  title = 'CRM',
+  description = 'Lead distribution CRM for sales representatives and partner companies.',
+} = Astro.props;
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || '';
+const pageUrl = siteUrl
+  ? `${siteUrl}${Astro.url.pathname}`
+  : Astro.url.pathname;
+const ogImage = `${siteUrl || ''}/og-image.webp`;
+const fullTitle = title === 'CRM' ? 'CRM' : `${title} | CRM`;
 ---
 
 <!doctype html>
@@ -10,131 +18,125 @@ const { title = 'CRM' } = Astro.props;
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{title} | CRM Composition</title>
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={pageUrl} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={pageUrl} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CRM" />
   <link rel="icon" href="/favicon.svg" />
 </head>
-<body class="h-full flex">
-  <div id="sidebar-root" class="hidden lg:flex shrink-0"></div>
+<body class="h-full">
+  <div class="min-h-full flex">
+    <aside id="sidebar-root" class="hidden lg:flex lg:w-64 shrink-0 bg-surface-900"></aside>
 
-  <div class="flex-1 flex flex-col min-w-0">
-    <header class="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 lg:px-6 h-16 flex items-center justify-between shrink-0">
-      <div class="flex items-center gap-4">
-        <button id="menu-toggle" class="lg:hidden p-2 rounded-lg text-surface-500 hover:bg-surface-100">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
-        <h1 class="text-lg font-semibold text-surface-900" id="page-title">{title}</h1>
-      </div>
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="sticky top-0 z-30 bg-white border-b border-slate-200">
+        <div class="flex items-center justify-between h-16 px-4 lg:px-6">
+          <div class="flex items-center gap-3">
+            <button id="menu-toggle" class="lg:hidden p-2 rounded-lg text-surface-500 hover:bg-surface-100" aria-label="Open navigation menu">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div>
+              <h1 class="text-base lg:text-lg font-semibold text-surface-900" id="page-title">{title}</h1>
+              <nav class="hidden sm:flex text-xs text-surface-400" id="breadcrumb" aria-label="Breadcrumb"></nav>
+            </div>
+          </div>
 
-      <div class="flex items-center gap-3">
-        <span id="header-role-badge" class="hidden inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
-        <div class="flex items-center gap-2" id="header-user">
-          <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-xs font-semibold text-white" id="header-avatar"></div>
-          <span class="text-sm font-medium text-surface-700 hidden sm:block" id="header-name"></span>
+          <div class="flex items-center gap-3">
+            <span id="header-role-badge" class="hidden badge"></span>
+            <div class="flex items-center gap-2.5">
+              <div class="avatar" id="header-avatar"></div>
+              <div class="hidden sm:block leading-tight">
+                <p class="text-sm font-medium text-surface-800" id="header-name"></p>
+                <p class="text-xs text-surface-400" id="header-email"></p>
+              </div>
+            </div>
+            <button id="logout-btn" class="p-2 rounded-lg text-surface-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Sign out">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </button>
+          </div>
         </div>
-        <button id="logout-btn" class="p-2 rounded-lg text-surface-400 hover:text-danger-600 hover:bg-danger-50 transition-colors" title="Logout">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-          </svg>
-        </button>
-      </div>
-    </header>
+      </header>
 
-    <main class="flex-1 p-4 lg:p-6 overflow-y-auto bg-surface-50">
-      <slot />
-    </main>
+      <main class="flex-1 p-4 lg:p-8 overflow-y-auto">
+        <div class="max-w-7xl mx-auto">
+          <slot />
+        </div>
+      </main>
+    </div>
   </div>
 
-  <div id="mobile-sidebar" class="fixed inset-0 z-50 hidden">
+  <div id="mobile-sidebar" class="fixed inset-0 z-50 hidden lg:hidden">
     <div class="absolute inset-0 bg-black/50" id="mobile-overlay"></div>
-    <div class="relative w-64 h-full z-10" id="mobile-sidebar-inner"></div>
+    <div class="relative w-64 h-full" id="mobile-sidebar-inner"></div>
   </div>
 </body>
 </html>
 
 <script>
-  // Inlined session helpers (module imports don't resolve in Astro static build)
-  function getSession() {
-    try {
-      const raw = localStorage.getItem('crm_session');
-      if (!raw) return null;
-      const session = JSON.parse(raw);
-      if (session.expires_at && session.expires_at < Date.now()) { localStorage.removeItem('crm_session'); return null; }
-      return session;
-    } catch { localStorage.removeItem('crm_session'); return null; }
-  }
-  function isLoggedIn() { return !!getSession(); }
-  function getUser() { const s = getSession(); return s ? s.user : null; }
+  import { getSession, getUser, logout } from '../lib/session.js';
+  import { roleBadge } from '../lib/ui.js';
 
-  function setupAuth() {
-    if (!isLoggedIn()) {
+  const current = window.location.pathname;
+  const pageTitle = document.getElementById('page-title').textContent;
+
+  function guard() {
+    if (!getSession()) {
       window.location.href = '/auth/login/';
-      return;
+      return false;
     }
-
-    const user = getUser();
-    if (!user) {
-      window.location.href = '/auth/login/';
-      return;
-    }
-
-    document.getElementById('header-name').textContent = user.name || user.username;
-    document.getElementById('header-avatar').textContent = (user.name || user.username || '?').charAt(0).toUpperCase();
-
-    const roleBadge = document.getElementById('header-role-badge');
-    roleBadge.textContent = user.role;
-    roleBadge.classList.add(
-      user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' :
-      user.role === 'SALES_REP' ? 'bg-blue-100 text-blue-700' :
-      'bg-emerald-100 text-emerald-700'
-    );
-    roleBadge.classList.remove('hidden');
-
-    renderSidebar(user.role);
+    return true;
   }
+
+  function iconSvg(d) {
+    return `<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${d}"/></svg>`;
+  }
+
+  const NAV = {
+    ADMIN: [
+      { href: '/admin/dashboard/', label: 'Dashboard', icon: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+      { href: '/admin/customers/', label: 'Customers', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+      { href: '/admin/leads/', label: 'Leads', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
+      { href: '/admin/users/', label: 'Sales Reps', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+      { href: '/admin/partners/', label: 'Partners', icon: 'M19 21v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2m8-10a4 4 0 11-8 0 4 4 0 018 0z' },
+      { href: '/admin/product-categories/', label: 'Categories', icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z' },
+      { href: '/admin/reports/', label: 'Reports', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+      { href: '/admin/settings/', label: 'Settings', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
+    ],
+    SALES_REP: [
+      { href: '/sales/dashboard/', label: 'Dashboard', icon: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+      { href: '/sales/customers/new/', label: 'New Customer', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' },
+      { href: '/sales/customers/', label: 'Customers', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
+      { href: '/sales/leads/', label: 'My Leads', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+    ],
+    PARTNER: [
+      { href: '/partner/dashboard/', label: 'Dashboard', icon: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+      { href: '/partner/leads/', label: 'Assigned Leads', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+      { href: '/partner/sales/', label: 'Sales', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+    ],
+  };
 
   function renderSidebar(role) {
-    const navItems = {
-      ADMIN: [
-        { href: '/admin/dashboard/', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1' },
-        { href: '/admin/products/', label: 'Products', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
-        { href: '/admin/partners/', label: 'Partners', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
-        { href: '/admin/leads/', label: 'Leads', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
-        { href: '/admin/users/', label: 'Users', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-      ],
-      SALES_REP: [
-        { href: '/sales/dashboard/', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1' },
-        { href: '/sales/register/', label: 'Register Customer', icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' },
-        { href: '/sales/leads/', label: 'My Leads', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
-      ],
-      PARTNER: [
-        { href: '/partner/dashboard/', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1' },
-        { href: '/partner/leads/', label: 'Assigned Leads', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
-      ],
-    };
+    const items = NAV[role] || [];
+    const user = getUser() || {};
+    const initials = (user.name || user.username || '?').charAt(0).toUpperCase();
+    const isCurrent = (href) => href === current || (current && href !== '/' && current.startsWith(href));
 
-    const items = navItems[role] || [];
-    const currentPath = window.location.pathname;
-
-    function iconSvg(d) {
-      return `<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${d}"/></svg>`;
-    }
-
-    const user = getUser();
-    const initials = (user?.name || user?.username || '?').charAt(0).toUpperCase();
-
-    const sidebarHtml = `
+    const html = `
       <div class="w-64 bg-surface-900 text-white flex flex-col h-full">
         <div class="flex items-center gap-3 px-6 py-5 border-b border-surface-700">
-          <svg class="w-8 h-8 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-          </svg>
-          <span class="text-lg font-semibold tracking-tight">CRM</span>
+          <svg class="w-8 h-8 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          <div>
+            <p class="text-lg font-semibold tracking-tight leading-tight">CRM</p>
+            <p class="text-[11px] text-surface-400">Lead Distribution</p>
+          </div>
         </div>
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          ${items.map(item => `
-            <a href="${item.href}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${currentPath === item.href ? 'bg-primary-600 text-white' : 'text-surface-300 hover:bg-surface-700 hover:text-white'}">
+          ${items.map((item) => `
+            <a href="${item.href}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isCurrent(item.href) ? 'bg-primary-600 text-white' : 'text-surface-300 hover:bg-surface-700 hover:text-white'}">
               ${iconSvg(item.icon)}
               ${item.label}
             </a>
@@ -142,31 +144,44 @@ const { title = 'CRM' } = Astro.props;
         </nav>
         <div class="px-3 py-4 border-t border-surface-700">
           <div class="flex items-center gap-3 px-3">
-            <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-xs font-semibold">${initials}</div>
+            <div class="avatar">${initials}</div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium truncate">${user?.name || user?.username}</p>
+              <p class="text-sm font-medium truncate">${user.name || user.username || ''}</p>
               <p class="text-xs text-surface-400 truncate">${role}</p>
             </div>
           </div>
         </div>
       </div>`;
 
-    document.getElementById('sidebar-root').innerHTML = sidebarHtml;
-    document.getElementById('mobile-sidebar-inner').innerHTML = sidebarHtml;
+    document.getElementById('sidebar-root').innerHTML = html;
+    document.getElementById('mobile-sidebar-inner').innerHTML = html;
   }
 
-  document.getElementById('logout-btn').addEventListener('click', () => {
-    localStorage.removeItem('crm_session');
-    window.location.href = '/auth/login/';
-  });
+  function setup() {
+    if (!guard()) return;
+    const user = getUser();
+    if (!user) { logout(); return; }
+
+    const role = user.role || 'PARTNER';
+    document.getElementById('header-name').textContent = user.name || user.username || '';
+    document.getElementById('header-email').textContent = user.email || '';
+    document.getElementById('header-avatar').textContent = (user.name || user.username || '?').charAt(0).toUpperCase();
+
+    const badge = document.getElementById('header-role-badge');
+    badge.innerHTML = roleBadge(role);
+    badge.classList.remove('hidden');
+
+    renderSidebar(role);
+  }
+
+  document.getElementById('logout-btn').addEventListener('click', () => logout());
 
   document.getElementById('menu-toggle').addEventListener('click', () => {
     document.getElementById('mobile-sidebar').classList.toggle('hidden');
   });
-
   document.getElementById('mobile-overlay').addEventListener('click', () => {
     document.getElementById('mobile-sidebar').classList.add('hidden');
   });
 
-  document.addEventListener('DOMContentLoaded', setupAuth);
+  setup();
 </script>

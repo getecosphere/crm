@@ -1,0 +1,50 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Sales" description="Sales your partner company has registered.">
+  <div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold text-surface-900">Registered Sales</h2>
+    </div>
+
+    <div class="card overflow-x-auto">
+      <table class="table min-w-full">
+        <thead><tr><th>Customer</th><th>Category</th><th>Sale date</th><th>Value</th><th>Reference</th><th>Registered</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { crmGet } from '../../lib/api.js';
+  import { formatDate, formatMoney, emptyState, skeletonRows, escapeHtml } from '../../lib/ui.js';
+
+  const rows = document.getElementById('rows');
+
+  async function load() {
+    skeletonRows(rows);
+    try {
+      const sales = await crmGet('/sales');
+      if (sales.length === 0) {
+        rows.innerHTML = '';
+        emptyState(document.querySelector('.card'), 'No sales registered yet', 'When you register a sale on an assigned lead, it will appear here.', '<a href="/partner/leads/" class="btn-primary">View assigned leads</a>');
+        return;
+      }
+      rows.innerHTML = sales.map((s) => `
+        <tr>
+          <td class="font-medium text-surface-900">${escapeHtml(s.customerName)}</td>
+          <td>${escapeHtml(s.categoryName)}</td>
+          <td class="text-surface-500">${formatDate(s.saleDate)}</td>
+          <td class="font-medium text-green-700">${formatMoney(s.saleValue)}</td>
+          <td class="text-surface-500">${escapeHtml(s.reference || '—')}</td>
+          <td class="text-surface-500">${formatDate(s.createdAt)}</td>
+        </tr>`).join('');
+    } catch (err) {
+      rows.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-sm text-red-600">${err.message}</td></tr>`;
+    }
+  }
+
+  load();
+</script>

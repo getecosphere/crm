@@ -1,0 +1,70 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Product Category" description="Assign partner companies to this product category.">
+  <div class="space-y-6">
+    <div id="header" class="card p-6"></div>
+    <div class="card">
+      <div class="card-header"><h3 class="section-title">Assigned Partners</h3></div>
+      <div class="card-body">
+        <p class="text-sm text-surface-500 mb-4">Only partners assigned to this category are eligible to receive leads for it.</p>
+        <div id="partner-list" class="space-y-2"></div>
+        <button id="save-btn" class="btn-primary mt-4">Save assignment</button>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { crmGet, crmPut } from '../../lib/api.js';
+  import { loadingState, errorState, toast, escapeHtml } from '../../lib/ui.js';
+
+  const id = new URLSearchParams(window.location.search).get('id') || '';
+  const list = document.getElementById('partner-list');
+
+  async function load() {
+    const header = document.getElementById('header');
+    loadingState(header, 'Loading category…');
+    try {
+      const [d, partners] = await Promise.all([
+        crmGet(`/product-categories/${id}`),
+        crmGet('/partners'),
+      ]);
+      const c = d.category;
+      const assigned = new Set((d.partners || []).map((p) => p.id));
+
+      header.innerHTML = `
+        <p class="breadcrumb"><a href="/admin/product-categories/">Product Categories</a> <span>/</span> ${escapeHtml(c.name)}</p>
+        <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(c.name)}</h2>
+        ${c.description ? `<p class="mt-1 text-sm text-surface-500">${escapeHtml(c.description)}</p>` : ''}`;
+
+      list.innerHTML = partners.length === 0
+        ? '<p class="text-sm text-surface-400">Create partner companies first, then assign them to this category.</p>'
+        : partners.map((p) => `
+          <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-surface-50 cursor-pointer ${assigned.has(p.id) ? 'bg-primary-50/40' : ''}">
+            <input type="checkbox" value="${p.id}" ${assigned.has(p.id) ? 'checked' : ''} class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500" />
+            <span class="text-sm font-medium text-surface-700 flex-1">${escapeHtml(p.name)}</span>
+          </label>`).join('');
+
+      document.getElementById('save-btn').addEventListener('click', async () => {
+        const ids = [...document.querySelectorAll('#partner-list input:checked')].map((i) => i.value);
+        document.getElementById('save-btn').disabled = true;
+        document.getElementById('save-btn').textContent = 'Saving…';
+        try {
+          await crmPut(`/product-categories/${id}/partners`, { partnerCompanyIds: ids });
+          toast('Category assignment saved');
+          load();
+        } catch (err) {
+          toast(err.message, 'error');
+          document.getElementById('save-btn').disabled = false;
+          document.getElementById('save-btn').textContent = 'Save assignment';
+        }
+      });
+    } catch (err) {
+      errorState(header, err.message);
+    }
+  }
+
+  load();
+</script>

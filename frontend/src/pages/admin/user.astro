@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Sales Representative" description="Sales representative detail with performance metrics.">
+  <div class="space-y-6">
+    <div id="header" class="card p-6"></div>
+    <div id="stats" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+    <div id="leads" class="card"></div>
+  </div>
+</Layout>
+
+<script>
+  import { crmGet } from '../../lib/api.js';
+  import { statusBadge, formatDate, loadingState, errorState, emptyState, escapeHtml } from '../../lib/ui.js';
+
+  const id = new URLSearchParams(window.location.search).get('id') || '';
+
+  async function load() {
+    const header = document.getElementById('header');
+    loadingState(header, 'Loading representative…');
+    try {
+      const d = await crmGet(`/users/${id}`);
+      const u = d;
+
+      header.innerHTML = `
+        <p class="breadcrumb"><a href="/admin/users/">Sales Representatives</a> <span>/</span> ${escapeHtml(u.name)}</p>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(u.name)}</h2>
+            <p class="mt-1 text-sm text-surface-500">${escapeHtml(u.email)}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="badge bg-blue-100 text-blue-700">SALES REP</span>
+            <span class="badge ${u.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}">${u.status === 'active' ? 'Active' : 'Inactive'}</span>
+          </div>
+        </div>`;
+
+      document.getElementById('stats').innerHTML = `
+        <div class="card p-6"><p class="text-sm font-medium text-surface-500">Customers Created</p><p class="mt-2 text-3xl font-semibold text-primary-600">${u.customersCreated}</p></div>
+        <div class="card p-6"><p class="text-sm font-medium text-surface-500">Leads Submitted</p><p class="mt-2 text-3xl font-semibold text-blue-600">${u.leadsSubmitted}</p></div>
+        <div class="card p-6"><p class="text-sm font-medium text-surface-500">Sales Resulted</p><p class="mt-2 text-3xl font-semibold text-green-600">${u.salesResulted}</p></div>`;
+
+      const leadsEl = document.getElementById('leads');
+      leadsEl.innerHTML = '<div class="card-header"><h3 class="section-title">Leads Submitted</h3></div><div class="overflow-x-auto"></div>';
+      const tbody = leadsEl.querySelector('.overflow-x-auto');
+      const leads = await crmGet('/leads?sales_rep_id=' + id).catch(() => []);
+      if (!leads.length) {
+        emptyState(tbody, 'No leads yet', 'This representative has not submitted any leads yet.');
+      } else {
+        tbody.innerHTML = `
+          <table class="table min-w-full">
+            <thead><tr><th>Customer</th><th>Category</th><th>Status</th><th>Created</th></tr></thead>
+            <tbody>
+              ${leads.map((l) => `
+                <tr class="cursor-pointer" onclick="window.location.href='/admin/lead/?id=${l.id}/'">
+                  <td class="font-medium text-surface-900">${escapeHtml(l.customerName)}</td>
+                  <td>${escapeHtml(l.categoryName)}</td>
+                  <td>${(l.assignments || []).map((a) => statusBadge(a.status)).join('') || statusBadge('UNASSIGNED')}</td>
+                  <td class="text-surface-500">${formatDate(l.createdAt)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+      }
+    } catch (err) {
+      errorState(header, err.message);
+    }
+  }
+
+  load();
+</script>

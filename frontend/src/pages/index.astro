@@ -1,34 +1,42 @@
+---
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || '';
+const pageUrl = siteUrl ? `${siteUrl}/` : '/';
+---
+
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>CRM</title>
-  <link rel="icon" href="/favicon.svg"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRM — Lead Distribution Platform</title>
+  <meta name="description" content="Lead distribution CRM for sales representatives and partner companies." />
+  <link rel="canonical" href={pageUrl} />
+  <meta property="og:title" content="CRM — Lead Distribution Platform" />
+  <meta property="og:description" content="Lead distribution CRM for sales representatives and partner companies." />
+  <meta property="og:url" content={pageUrl} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CRM" />
+  <link rel="icon" href="/favicon.svg" />
+  <style>
+    body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: #fafafa; }
+  </style>
 </head>
 <body>
-<script>
-  const crmUrl = (import.meta as any).env?.PUBLIC_CRM_URL || '/api';
-  const authUrl = (import.meta as any).env?.PUBLIC_AUTH_URL || '/auth-api';
+  <div id="root" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#525252;">
+    <div class="spinner" style="width:36px;height:36px;border:4px solid #e0e7ff;border-top-color:#4f46e5;border-radius:9999px;animation:spin .8s linear infinite;"></div>
+    <p style="margin:0;font-size:14px;">Loading CRM…</p>
+  </div>
+  <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+</body>
+</html>
 
-  async function checkSetup() {
-    try {
-      const res = await fetch(crmUrl + '/crm/setup/status');
-      if (!res.ok) return;
-      const data = await res.json();
-      if (!data.initialized) {
-        window.location.replace('/setup/');
-        return;
-      }
-    } catch {
-      // if unreachable, fall through to login
-    }
-    routeBySession();
-  }
+<script>
+  const CRM = (import.meta.env.PUBLIC_CRM_URL || '/api').replace(/\/$/, '');
+  const SESSION_KEY = 'crm_session';
 
   function routeBySession() {
     try {
-      const raw = localStorage.getItem('crm_session');
+      const raw = localStorage.getItem(SESSION_KEY);
       if (!raw) throw new Error('no session');
       const session = JSON.parse(raw);
       if (session.expires_at && session.expires_at < Date.now()) throw new Error('expired');
@@ -42,7 +50,21 @@
     }
   }
 
+  async function checkSetup() {
+    try {
+      const res = await fetch(`${CRM}/setup/status`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (!data.initialized) {
+          window.location.replace('/setup/');
+          return;
+        }
+      }
+    } catch {
+      // backend unreachable — fall through to session routing
+    }
+    routeBySession();
+  }
+
   checkSetup();
 </script>
-</body>
-</html>

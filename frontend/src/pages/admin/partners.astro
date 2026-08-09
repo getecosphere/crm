@@ -2,150 +2,142 @@
 import Layout from '../../layouts/Layout.astro';
 ---
 
-<Layout title="Partners">
+<Layout title="Partner Companies" description="Manage the partner companies that process assigned leads.">
   <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-surface-900">Partner Companies</h2>
-      <button onclick="openCreateModal()"
-        class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors">
-        + Add Partner
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="relative w-full sm:w-80">
+        <svg class="w-4 h-4 text-surface-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="search" type="search" placeholder="Search partners…" class="input pl-9" />
+      </div>
+      <button id="open-modal" class="btn-primary">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        Add Partner
       </button>
     </div>
 
-    <div id="partners-table"></div>
-    <div id="loading" class="flex justify-center py-12"></div>
+    <p class="text-sm text-surface-500" id="count-label"></p>
+
+    <div class="card overflow-x-auto">
+      <table class="table min-w-full">
+        <thead><tr>
+          <th>Company</th><th>Categories</th><th>Assigned Leads</th><th>Sales</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
   </div>
 
-  <dialog id="partner-modal" class="group fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 opacity-0 transition-opacity open:opacity-100">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg scale-95 transition-transform group-open:scale-100">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-        <h3 class="text-lg font-semibold text-surface-900">Add Partner Company</h3>
-        <button type="button" onclick="closeModal()" class="p-1 rounded-lg text-surface-400 hover:text-surface-600 hover:bg-surface-100">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <form id="partner-form" class="p-6 space-y-4">
+  <div id="modal" class="hidden fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+    <div class="absolute inset-0 bg-black/50" onclick="document.getElementById('modal').classList.add('hidden')"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg mt-16 p-6">
+      <h3 class="text-lg font-semibold text-surface-900 mb-5">Add Partner Company</h3>
+      <form id="form" class="space-y-4" novalidate>
+        <div id="form-error" class="hidden p-3 rounded-lg bg-red-50 text-red-600 text-sm"></div>
         <div>
-          <label class="block text-sm font-medium text-surface-700 mb-1.5">Company Name</label>
-          <input type="text" name="name" required
-            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-surface-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"/>
+          <label class="label" for="name">Company name *</label>
+          <input id="name" class="input" required placeholder="Acme Finance" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="label" for="contact">Contact person</label>
+            <input id="contact" class="input" placeholder="Contact name" />
+          </div>
+          <div>
+            <label class="label" for="phone">Phone</label>
+            <input id="phone" class="input" placeholder="+62 812 …" />
+          </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-surface-700 mb-1.5">Contact Email</label>
-          <input type="email" name="email"
-            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-surface-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"/>
+          <label class="label" for="email">Email</label>
+          <input id="email" type="email" class="input" placeholder="ops@acme.com" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-surface-700 mb-1.5">Phone</label>
-          <input type="text" name="phone"
-            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-surface-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"/>
+          <label class="label" for="address">Address</label>
+          <input id="address" class="input" placeholder="Street, city" />
         </div>
-        <div id="modal-error" class="hidden p-3 rounded-lg bg-danger-50 text-danger-600 text-sm"></div>
-        <div class="flex justify-end gap-3">
-          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg border border-slate-300 text-surface-700 text-sm font-medium hover:bg-surface-50">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-50">Save</button>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn-secondary" onclick="document.getElementById('modal').classList.add('hidden')">Cancel</button>
+          <button type="submit" class="btn-primary">Create partner</button>
         </div>
       </form>
     </div>
-  </dialog>
+  </div>
 </Layout>
 
 <script>
-  import { apiGet, apiPost, apiDelete, PARTNERS_URL } from '../../lib/api.js';
+  import { crmGet, crmPost } from '../../lib/api.js';
+  import { activeBadge, emptyState, skeletonRows, toast, escapeHtml } from '../../lib/ui.js';
 
-  let partners = [];
-
-  async function loadPartners() {
-    document.getElementById('loading').innerHTML = '<div class="animate-spin w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full"></div>';
-    try {
-      partners = await apiGet(`${PARTNERS_URL}/api/partners`);
-    } catch {
-      partners = [];
-    }
-    document.getElementById('loading').innerHTML = '';
-    render();
-  }
+  const rows = document.getElementById('rows');
+  const countLabel = document.getElementById('count-label');
+  const search = document.getElementById('search');
+  let all = [];
 
   function render() {
-    const el = document.getElementById('partners-table');
-    if (!partners.length) {
-      el.innerHTML = '<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center text-surface-400">No partners found.</div>';
-      return;
-    }
-    el.innerHTML = `
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <table class="w-full text-sm">
-          <thead><tr class="border-b border-slate-200 bg-surface-50">
-            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Company</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Email</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Phone</th>
-            <th class="px-6 py-3 text-right text-xs font-semibold text-surface-500 uppercase">Actions</th>
-          </tr></thead>
-          <tbody class="divide-y divide-slate-100">
-            ${partners.map(p => `
-              <tr class="hover:bg-surface-50">
-                <td class="px-6 py-4 font-medium text-surface-900">${escapeHtml(p.name)}</td>
-                <td class="px-6 py-4 text-surface-500">${escapeHtml(p.email || '—')}</td>
-                <td class="px-6 py-4 text-surface-500">${escapeHtml(p.phone || '—')}</td>
-                <td class="px-6 py-4 text-right">
-                  <button onclick="deletePartner('${p.id}')" class="text-danger-600 hover:text-danger-800 font-medium text-xs">Delete</button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>`;
+    const q = search.value.trim().toLowerCase();
+    const filtered = all.filter((p) => (p.name + ' ' + (p.email || '')).toLowerCase().includes(q));
+    countLabel.textContent = `Showing ${filtered.length} of ${all.length} partners`;
+    rows.innerHTML = filtered.length === 0
+      ? '<tr><td colspan="6" class="text-center py-10 text-sm text-surface-400">No partners match your search.</td></tr>'
+      : filtered.map((p) => `
+        <tr class="cursor-pointer" onclick="window.location.href='/admin/partner/?id=${p.id}/'">
+          <td class="font-medium text-surface-900">${escapeHtml(p.name)}</td>
+          <td>
+            <div class="flex flex-wrap gap-1">${(p.categories || []).map((c) => `<span class="badge bg-surface-100 text-surface-600">${escapeHtml(c)}</span>`).join('') || '<span class="text-surface-400 text-xs">—</span>'}</div>
+          </td>
+          <td><span class="badge bg-blue-50 text-blue-700">${p.assignedLeads}</span></td>
+          <td><span class="badge bg-green-50 text-green-700">${p.salesCount}</span></td>
+          <td>${activeBadge(p.status)}</td>
+          <td><a href="/admin/partner/?id=${p.id}/" class="text-xs font-medium text-primary-600 hover:text-primary-700">View →</a></td>
+        </tr>`).join('');
   }
+  search.addEventListener('input', render);
 
-  function escapeHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-  }
+  document.getElementById('open-modal').addEventListener('click', () => document.getElementById('modal').classList.remove('hidden'));
 
-  function openCreateModal() {
-    document.getElementById('partner-modal').showModal();
-  }
-
-  function closeModal() {
-    document.getElementById('partner-modal').close();
-    document.getElementById('partner-form').reset();
-    document.getElementById('modal-error').classList.add('hidden');
-  }
-
-  async function deletePartner(id) {
-    if (!confirm('Delete this partner?')) return;
-    try {
-      await apiDelete(`${PARTNERS_URL}/api/partners/${id}`);
-      await loadPartners();
-    } catch (err) {
-      alert('Delete failed: ' + err.message);
-    }
-  }
-
-  document.getElementById('partner-form').addEventListener('submit', async (e) => {
+  document.getElementById('form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const form = e.target;
-    const btn = form.querySelector('button[type="submit"]');
-    const errorEl = document.getElementById('modal-error');
+    const errorBox = document.getElementById('form-error');
+    const btn = e.target.querySelector('button[type="submit"]');
+    errorBox.classList.add('hidden');
     btn.disabled = true;
-    btn.textContent = 'Saving...';
-    errorEl.classList.add('hidden');
-
+    btn.textContent = 'Creating…';
     try {
-      await apiPost(`${PARTNERS_URL}/api/partners`, {
-        name: form.name.value,
-        email: form.email.value,
-        phone: form.phone.value,
+      await crmPost('/partners', {
+        name: document.getElementById('name').value.trim(),
+        contactPerson: document.getElementById('contact').value.trim() || undefined,
+        phone: document.getElementById('phone').value.trim() || undefined,
+        email: document.getElementById('email').value.trim() || undefined,
+        address: document.getElementById('address').value.trim() || undefined,
       });
-      closeModal();
-      await loadPartners();
+      toast('Partner company created');
+      document.getElementById('modal').classList.add('hidden');
+      e.target.reset();
+      load();
     } catch (err) {
-      errorEl.textContent = err.message;
-      errorEl.classList.remove('hidden');
+      errorBox.textContent = err.message;
+      errorBox.classList.remove('hidden');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Save';
+      btn.textContent = 'Create partner';
     }
   });
 
-  loadPartners();
+  async function load() {
+    skeletonRows(rows);
+    try {
+      all = await crmGet('/partners');
+      if (all.length === 0) {
+        countLabel.textContent = '';
+        rows.innerHTML = '';
+        emptyState(document.querySelector('.card'), 'No partner companies yet', 'Partners process the leads that you assign to them.', '<button class="btn-primary" onclick="document.getElementById(\'modal\').classList.remove(\'hidden\')">Add Partner</button>');
+        return;
+      }
+      render();
+    } catch (err) {
+      rows.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-sm text-red-600">${err.message}</td></tr>`;
+    }
+  }
+
+  load();
 </script>

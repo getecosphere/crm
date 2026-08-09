@@ -1,0 +1,116 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Product Categories" description="Product categories used to classify customer interests into leads.">
+  <div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="relative w-full sm:w-80">
+        <svg class="w-4 h-4 text-surface-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="search" type="search" placeholder="Search categories…" class="input pl-9" />
+      </div>
+      <button id="open-modal" class="btn-primary">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        Add Category
+      </button>
+    </div>
+
+    <div class="card overflow-x-auto">
+      <table class="table min-w-full">
+        <thead><tr><th>Category</th><th>Partners</th><th>Leads</th><th>Status</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="modal" class="hidden fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+    <div class="absolute inset-0 bg-black/50" onclick="document.getElementById('modal').classList.add('hidden')"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mt-16 p-6">
+      <h3 class="text-lg font-semibold text-surface-900 mb-5">Add Product Category</h3>
+      <form id="form" class="space-y-4" novalidate>
+        <div id="form-error" class="hidden p-3 rounded-lg bg-red-50 text-red-600 text-sm"></div>
+        <div>
+          <label class="label" for="name">Category name *</label>
+          <input id="name" class="input" required placeholder="Personal Loan" />
+        </div>
+        <div>
+          <label class="label" for="description">Description</label>
+          <input id="description" class="input" placeholder="Short description" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn-secondary" onclick="document.getElementById('modal').classList.add('hidden')">Cancel</button>
+          <button type="submit" class="btn-primary">Create category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { crmGet, crmPost } from '../../lib/api.js';
+  import { activeBadge, emptyState, skeletonRows, toast, escapeHtml } from '../../lib/ui.js';
+
+  const rows = document.getElementById('rows');
+  const search = document.getElementById('search');
+  let all = [];
+
+  function render() {
+    const q = search.value.trim().toLowerCase();
+    const filtered = all.filter((c) => c.name.toLowerCase().includes(q));
+    rows.innerHTML = filtered.length === 0
+      ? '<tr><td colspan="5" class="text-center py-10 text-sm text-surface-400">No categories match your search.</td></tr>'
+      : filtered.map((c) => `
+        <tr class="cursor-pointer" onclick="window.location.href='/admin/product-category/?id=${c.id}/'">
+          <td class="font-medium text-surface-900">${escapeHtml(c.name)}</td>
+          <td><span class="badge bg-primary-50 text-primary-700">${c.partnersCount} partners</span></td>
+          <td><span class="badge bg-blue-50 text-blue-700">${c.leadsCount} leads</span></td>
+          <td>${activeBadge(c.status)}</td>
+          <td><a href="/admin/product-category/?id=${c.id}/" class="text-xs font-medium text-primary-600 hover:text-primary-700">Manage →</a></td>
+        </tr>`).join('');
+  }
+  search.addEventListener('input', render);
+
+  document.getElementById('open-modal').addEventListener('click', () => document.getElementById('modal').classList.remove('hidden'));
+
+  document.getElementById('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorBox = document.getElementById('form-error');
+    const btn = e.target.querySelector('button[type="submit"]');
+    errorBox.classList.add('hidden');
+    btn.disabled = true;
+    btn.textContent = 'Creating…';
+    try {
+      await crmPost('/product-categories', {
+        name: document.getElementById('name').value.trim(),
+        description: document.getElementById('description').value.trim() || undefined,
+      });
+      toast('Category created');
+      document.getElementById('modal').classList.add('hidden');
+      e.target.reset();
+      load();
+    } catch (err) {
+      errorBox.textContent = err.message;
+      errorBox.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Create category';
+    }
+  });
+
+  async function load() {
+    skeletonRows(rows);
+    try {
+      all = await crmGet('/product-categories');
+      if (all.length === 0) {
+        rows.innerHTML = '';
+        emptyState(document.querySelector('.card'), 'No categories yet', 'Categories classify customer interests into leads.', '<button class="btn-primary" onclick="document.getElementById(\'modal\').classList.remove(\'hidden\')">Add Category</button>');
+        return;
+      }
+      render();
+    } catch (err) {
+      rows.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-sm text-red-600">${err.message}</td></tr>`;
+    }
+  }
+
+  load();
+</script>

@@ -1,0 +1,65 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Lead" description="Lead detail and processing status.">
+  <div class="space-y-6">
+    <div id="header" class="card p-6"></div>
+    <div class="card">
+      <div class="card-header"><h3 class="section-title">Assignment Status</h3></div>
+      <div id="assignments" class="card-body"></div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { crmGet } from '../../lib/api.js';
+  import { statusBadge, formatDate, loadingState, errorState, emptyState, escapeHtml } from '../../lib/ui.js';
+
+  const id = new URLSearchParams(window.location.search).get('id') || '';
+
+  async function load() {
+    const header = document.getElementById('header');
+    loadingState(header, 'Loading lead…');
+    try {
+      const d = await crmGet(`/leads/${id}`);
+      const l = d.lead;
+      const c = d.customer || {};
+
+      header.innerHTML = `
+        <p class="breadcrumb"><a href="/sales/leads/">My Leads</a> <span>/</span> ${escapeHtml(l.customerName)}</p>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(l.customerName)}</h2>
+            <p class="mt-1 text-sm text-surface-500">${escapeHtml(d.category?.name || l.categoryName)} · ${formatDate(l.createdAt)}</p>
+          </div>
+          <div class="flex gap-2">${(l.assignments || []).map((a) => statusBadge(a.status)).join('') || statusBadge('UNASSIGNED')}</div>
+        </div>
+        ${c.phone ? `<div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm bg-surface-50 rounded-xl p-4">
+          <div><p class="text-xs text-surface-400 mb-0.5">Phone</p><p class="text-surface-700">${escapeHtml(c.phone)}</p></div>
+          ${c.email ? `<div><p class="text-xs text-surface-400 mb-0.5">Email</p><p class="text-surface-700">${escapeHtml(c.email)}</p></div>` : ''}
+          ${c.city ? `<div><p class="text-xs text-surface-400 mb-0.5">City</p><p class="text-surface-700">${escapeHtml(c.city)}</p></div>` : ''}
+          ${c.address ? `<div><p class="text-xs text-surface-400 mb-0.5">Address</p><p class="text-surface-700">${escapeHtml(c.address)}</p></div>` : ''}
+        </div>` : ''}`;
+
+      const list = l.assignments || [];
+      const assignEl = document.getElementById('assignments');
+      if (list.length === 0) {
+        emptyState(assignEl, 'Not assigned yet', 'Once an administrator assigns this lead to a partner, you will see the processing status here.');
+      } else {
+        assignEl.innerHTML = list.map((a) => `
+          <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+            <div>
+              <p class="font-medium text-surface-800">${escapeHtml(a.partnerName)}</p>
+              <p class="text-xs text-surface-400">Assigned ${formatDate(a.assignedAt)}</p>
+            </div>
+            ${statusBadge(a.status)}
+          </div>`).join('');
+      }
+    } catch (err) {
+      errorState(header, err.message);
+    }
+  }
+
+  load();
+</script>

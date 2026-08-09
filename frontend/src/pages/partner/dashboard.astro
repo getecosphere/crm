@@ -2,54 +2,64 @@
 import Layout from '../../layouts/Layout.astro';
 ---
 
-<Layout title="Dashboard">
+<Layout title="Dashboard" description="Your assigned leads and processing workload.">
   <div class="space-y-6">
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="stat-cards">
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <div class="flex items-start justify-between">
-          <div><p class="text-sm font-medium text-surface-500">Assigned Leads</p><p class="mt-2 text-3xl font-semibold text-surface-900" id="stat-total">—</p></div>
-          <div class="w-12 h-12 rounded-lg bg-primary-50 flex items-center justify-center">
-            <svg class="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          </div>
-        </div>
+    <div id="stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
+
+    <div class="card">
+      <div class="card-header flex items-center justify-between">
+        <h3 class="section-title">Recent Assigned Leads</h3>
+        <a href="/partner/leads/" class="text-xs font-medium text-primary-600 hover:text-primary-700">View all →</a>
       </div>
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <div class="flex items-start justify-between">
-          <div><p class="text-sm font-medium text-surface-500">Won</p><p class="mt-2 text-3xl font-semibold text-surface-900" id="stat-won">—</p></div>
-          <div class="w-12 h-12 rounded-lg bg-success-50 flex items-center justify-center">
-            <svg class="w-6 h-6 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <div class="flex items-start justify-between">
-          <div><p class="text-sm font-medium text-surface-500">Active</p><p class="mt-2 text-3xl font-semibold text-surface-900" id="stat-active">—</p></div>
-          <div class="w-12 h-12 rounded-lg bg-warning-50 flex items-center justify-center">
-            <svg class="w-6 h-6 text-warning-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-        </div>
-      </div>
+      <div id="recent" class="overflow-x-auto"></div>
     </div>
   </div>
 </Layout>
 
 <script>
-  import { apiGet, CRM_URL } from '../../lib/api.js';
+  import { crmGet } from '../../lib/api.js';
+  import { statusBadge, formatDate, loadingState, errorState, emptyState, escapeHtml } from '../../lib/ui.js';
 
   async function load() {
+    const stats = document.getElementById('stats');
+    const recent = document.getElementById('recent');
+    loadingState(recent, 'Loading dashboard…');
     try {
-      const data = await apiGet(`${CRM_URL}/api/crm/leads/assigned`);
-      const leads = Array.isArray(data) ? data : (data.leads || data.data || []);
-      const won = leads.filter(l => l.status === 'won').length;
-      const active = leads.filter(l => !['won', 'lost'].includes(l.status)).length;
+      const d = await crmGet('/dashboard');
+      const s = d.statusCounts || {};
+      const cards = [
+        ['Assigned Leads', d.assignedLeads, 'text-surface-900'],
+        ['New', s.NEW || 0, 'text-blue-600'],
+        ['Contacted', s.CONTACTED || 0, 'text-amber-600'],
+        ['In Progress', s.IN_PROGRESS || 0, 'text-indigo-600'],
+        ['Sales', s.SALE || 0, 'text-green-600'],
+        ['No Sale', s.NO_SALE || 0, 'text-red-600'],
+      ];
+      stats.innerHTML = cards.map(([label, value, color]) => `
+        <div class="card p-4">
+          <p class="text-xs font-medium text-surface-500">${label}</p>
+          <p class="mt-1 text-2xl font-semibold ${color}">${Number(value || 0)}</p>
+        </div>`).join('');
 
-      document.getElementById('stat-total').textContent = leads.length;
-      document.getElementById('stat-won').textContent = won;
-      document.getElementById('stat-active').textContent = active;
-    } catch {
-      document.getElementById('stat-total').textContent = '0';
-      document.getElementById('stat-won').textContent = '0';
-      document.getElementById('stat-active').textContent = '0';
+      const list = d.recentLeads || [];
+      if (list.length === 0) {
+        emptyState(recent, 'No assigned leads yet', 'When an administrator assigns leads to your company, they will appear here.');
+      } else {
+        recent.innerHTML = `
+          <table class="table min-w-full">
+            <thead><tr><th>Customer</th><th>Category</th><th>Status</th><th>Assigned</th></tr></thead>
+            <tbody>${list.map((l) => `
+              <tr class="cursor-pointer" onclick="window.location.href='/partner/lead/?id=${l.id}/'">
+                <td class="font-medium text-surface-900">${escapeHtml(l.customerName)}</td>
+                <td>${escapeHtml(l.categoryName)}</td>
+                <td>${statusBadge(l.status)}</td>
+                <td class="text-surface-500">${formatDate(l.assignedAt)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+      }
+    } catch (err) {
+      errorState(stats.parentElement, err.message);
     }
   }
 

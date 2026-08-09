@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Partner" description="Partner company detail with categories, users and performance.">
+  <div class="space-y-6">
+    <div id="header" class="card p-6"></div>
+    <div id="performance" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div id="categories" class="card"></div>
+      <div id="users" class="card"></div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { crmGet, crmPut } from '../../lib/api.js';
+  import { formatDate, loadingState, errorState, emptyState, toast, escapeHtml } from '../../lib/ui.js';
+
+  const id = new URLSearchParams(window.location.search).get('id') || '';
+
+  async function load() {
+    const header = document.getElementById('header');
+    loadingState(header, 'Loading partner…');
+    try {
+      const d = await crmGet(`/partners/${id}`);
+      const p = d.partner;
+
+      header.innerHTML = `
+        <p class="breadcrumb"><a href="/admin/partners/">Partners</a> <span>/</span> ${escapeHtml(p.name)}</p>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(p.name)}</h2>
+            <div class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-surface-500">
+              ${p.contactPerson ? `<span>👤 ${escapeHtml(p.contactPerson)}</span>` : ''}
+              ${p.email ? `<span>✉️ ${escapeHtml(p.email)}</span>` : ''}
+              ${p.phone ? `<span>📞 ${escapeHtml(p.phone)}</span>` : ''}
+            </div>
+          </div>
+          <span class="badge ${p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}">${p.status === 'active' ? 'Active' : 'Inactive'}</span>
+        </div>`;
+
+      const perf = d.performance || {};
+      document.getElementById('performance').innerHTML = [
+        ['Assigned Leads', perf.assigned, 'text-surface-900'],
+        ['New', perf.newCount, 'text-blue-600'],
+        ['Contacted', perf.contacted, 'text-amber-600'],
+        ['In Progress', perf.inProgress, 'text-indigo-600'],
+        ['Sales', perf.salesCount, 'text-green-600'],
+        ['No Sale', perf.noSale, 'text-red-600'],
+      ].map(([label, value, color]) => `
+        <div class="card p-4">
+          <p class="text-xs font-medium text-surface-500">${label}</p>
+          <p class="mt-1 text-2xl font-semibold ${color}">${Number(value || 0)}</p>
+        </div>`).join('');
+
+      const catsEl = document.getElementById('categories');
+      const categories = d.categories || [];
+      catsEl.innerHTML = `
+        <div class="card-header"><h3 class="section-title">Product Categories</h3></div>
+        <div class="card-body">
+          <div class="flex flex-wrap gap-2 mb-4">
+            ${categories.length ? categories.map((c) => `<span class="badge bg-primary-50 text-primary-700">✓ ${escapeHtml(c.name)}</span>`).join('') : '<p class="text-sm text-surface-400">No categories assigned yet.</p>'}
+          </div>
+          <a href="/admin/product-categories/" class="text-xs font-medium text-primary-600 hover:text-primary-700">Manage categories →</a>
+        </div>`;
+
+      const usersEl = document.getElementById('users');
+      const partnerUsers = d.users || [];
+      usersEl.innerHTML = `
+        <div class="card-header"><h3 class="section-title">Partner Users</h3></div>
+        <div class="overflow-x-auto">${partnerUsers.length ? `
+          <table class="table min-w-full">
+            <thead><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead>
+            <tbody>${partnerUsers.map((u) => `
+              <tr><td class="font-medium text-surface-900">${escapeHtml(u.name)}</td><td class="text-surface-500">${escapeHtml(u.email)}</td><td>${u.status === 'active' ? '<span class="badge bg-green-100 text-green-700">Active</span>' : '<span class="badge bg-slate-100 text-slate-600">Inactive</span>'}</td></tr>`).join('')}
+            </tbody>
+          </table>` : '<p class="text-sm text-surface-400 p-5">No partner users yet.</p>'}</div>`;
+    } catch (err) {
+      errorState(header, err.message);
+    }
+  }
+
+  load();
+</script>

@@ -2,16 +2,154 @@
 import Layout from '../../layouts/Layout.astro';
 ---
 
-<Layout title="Users">
-  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
-    <svg class="w-16 h-16 text-surface-300 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-    </svg>
-    <h3 class="mt-4 text-lg font-semibold text-surface-700">User Management</h3>
-    <p class="mt-2 text-surface-400 max-w-md mx-auto">
-      User management will be available in a future update. For now, use the
-      <a href="/auth/register/" class="text-primary-600 hover:text-primary-700 font-medium">registration page</a>
-      to create new users.
-    </p>
+<Layout title="Sales Representatives" description="Manage the sales representatives who register customers and submit leads.">
+  <div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="relative w-full sm:w-80">
+        <svg class="w-4 h-4 text-surface-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="search" type="search" placeholder="Search representatives…" class="input pl-9" />
+      </div>
+      <button id="open-modal" class="btn-primary">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        Add Representative
+      </button>
+    </div>
+
+    <p class="text-sm text-surface-500" id="count-label"></p>
+
+    <div class="card overflow-x-auto">
+      <table class="table min-w-full">
+        <thead><tr>
+          <th>Name</th><th>Email</th><th>Customers</th><th>Leads</th><th>Sales</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="modal" class="hidden fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+    <div class="absolute inset-0 bg-black/50" onclick="document.getElementById('modal').classList.add('hidden')"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg mt-16 p-6">
+      <h3 class="text-lg font-semibold text-surface-900 mb-1">Add Sales Representative</h3>
+      <p class="text-sm text-surface-500 mb-5">Creates the login account and provisions the representative in the CRM.</p>
+      <form id="form" class="space-y-4" novalidate>
+        <div id="form-error" class="hidden p-3 rounded-lg bg-red-50 text-red-600 text-sm"></div>
+        <div>
+          <label class="label" for="name">Full name *</label>
+          <input id="name" class="input" required placeholder="Eko Suprapto" />
+        </div>
+        <div>
+          <label class="label" for="email">Email *</label>
+          <input id="email" type="email" class="input" required placeholder="eko@company.com" />
+        </div>
+        <div>
+          <label class="label" for="username">Username *</label>
+          <input id="username" class="input" required placeholder="eko" />
+        </div>
+        <div>
+          <label class="label" for="phone">Phone</label>
+          <input id="phone" class="input" placeholder="+62 812 …" />
+        </div>
+        <div>
+          <label class="label" for="password">Temporary password *</label>
+          <input id="password" type="password" class="input" required minlength="8" placeholder="Minimum 8 characters" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="btn-secondary" onclick="document.getElementById('modal').classList.add('hidden')">Cancel</button>
+          <button type="submit" class="btn-primary">Create representative</button>
+        </div>
+      </form>
+    </div>
   </div>
 </Layout>
+
+<script>
+  import { crmGet, crmPost, authRequest } from '../../lib/api.js';
+  import { activeBadge, emptyState, skeletonRows, toast, escapeHtml } from '../../lib/ui.js';
+
+  const rows = document.getElementById('rows');
+  const countLabel = document.getElementById('count-label');
+  const search = document.getElementById('search');
+  let all = [];
+
+  function render() {
+    const q = search.value.trim().toLowerCase();
+    const filtered = all.filter((u) => (u.name + ' ' + u.email).toLowerCase().includes(q));
+    countLabel.textContent = `Showing ${filtered.length} of ${all.length} representatives`;
+    rows.innerHTML = filtered.length === 0
+      ? '<tr><td colspan="7" class="text-center py-10 text-sm text-surface-400">No representatives match your search.</td></tr>'
+      : filtered.map((u) => `
+        <tr class="cursor-pointer" onclick="window.location.href='/admin/user/?id=${u.id}/'">
+          <td class="font-medium text-surface-900">${escapeHtml(u.name)}</td>
+          <td class="text-surface-500">${escapeHtml(u.email)}</td>
+          <td><span class="badge bg-primary-50 text-primary-700">${u.customersCreated ?? 0}</span></td>
+          <td><span class="badge bg-blue-50 text-blue-700">${u.leadsSubmitted ?? 0}</span></td>
+          <td><span class="badge bg-green-50 text-green-700">${u.salesResulted ?? 0}</span></td>
+          <td>${activeBadge(u.status)}</td>
+          <td><a href="/admin/user/?id=${u.id}/" class="text-xs font-medium text-primary-600 hover:text-primary-700">View →</a></td>
+        </tr>`).join('');
+  }
+  search.addEventListener('input', render);
+
+  document.getElementById('email').addEventListener('input', (e) => {
+    document.getElementById('username').value = e.target.value.split('@')[0].toLowerCase();
+  });
+  document.getElementById('open-modal').addEventListener('click', () => {
+    document.getElementById('modal').classList.remove('hidden');
+  });
+
+  document.getElementById('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorBox = document.getElementById('form-error');
+    const btn = e.target.querySelector('button[type="submit"]');
+    errorBox.classList.add('hidden');
+    btn.disabled = true;
+    btn.textContent = 'Creating…';
+    try {
+      const { id: authUserId } = await authRequest('POST', '/api/auth/register', {
+        username: document.getElementById('username').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+        name: document.getElementById('name').value.trim(),
+        role: 'member',
+      }).then((d) => d.user);
+
+      await crmPost('/users', {
+        authUserId,
+        role: 'SALES_REP',
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim() || undefined,
+      });
+
+      toast('Sales representative created');
+      document.getElementById('modal').classList.add('hidden');
+      e.target.reset();
+      load();
+    } catch (err) {
+      errorBox.textContent = err.message;
+      errorBox.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Create representative';
+    }
+  });
+
+  async function load() {
+    skeletonRows(rows);
+    try {
+      all = await crmGet('/users?role=SALES_REP');
+      if (all.length === 0) {
+        countLabel.textContent = '';
+        rows.innerHTML = '';
+        emptyState(document.querySelector('.card'), 'No sales representatives yet', 'Representatives register customers and submit product-interest leads.', '<button class="btn-primary" onclick="document.getElementById(\'modal\').classList.remove(\'hidden\')">Add Representative</button>');
+        return;
+      }
+      render();
+    } catch (err) {
+      rows.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-sm text-red-600">${err.message}</td></tr>`;
+    }
+  }
+
+  load();
+</script>
