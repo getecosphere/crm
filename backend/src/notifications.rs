@@ -1,3 +1,5 @@
+use chrono::Utc;
+use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 
 use crate::config::AppConfig;
@@ -23,35 +25,68 @@ struct IngestResponse {
     notified: usize,
 }
 
+/// A short-lived service identity used when the CRM backend calls peer
+/// domains that authenticate with the estate's shared JWT secret. The CRM
+/// backend shares JWT_SECRET, so it can present a valid token without holding
+/// a browser session.
+#[derive(Debug, Serialize)]
+struct ServiceClaims {
+    sub: String,
+    username: String,
+    role: String,
+    iat: i64,
+    exp: i64,
+}
+
+fn service_token(config: &AppConfig) -> Result<String, String> {
+    let now = Utc::now().timestamp();
+    let claims = ServiceClaims {
+        sub: "system:crm-backend".into(),
+        username: "crm-backend".into(),
+        role: "SYSTEM".into(),
+        iat: now,
+        exp: now + 120,
+    };
+    let header = Header::new(Algorithm::HS512);
+    encode(&header, &claims, &EncodingKey::from_secret(config.jwt_secret.as_bytes()))
+        .map_err(|e| format!("failed to sign service token: {e}"))
+}
+
 /// Pushes an in-app notification to the notifications domain. Fires and
 /// forgets: a notification must never block the CRM write that triggered it.
 pub async fn push(
     config: &AppConfig,
     notification: IngestNotification<'_>,
 ) -> Result<(), String> {
+    let token = service_token(config)?;
     let client = reqwest::Client::new();
     let url = format!("{}/ingest", config.notifications_api_url.trim_end_matches('/'));
     let response = client
         .post(&url)
+        .bearer_auth(&token)
         .json(&notification)
         .send()
-        .await
-        .map_err(|e| format!("notifications unreachable: {e}"))?;
-
-    if !response.status().is_success() {
-        let status = response.status();
-        let text = response.text().await.unwrap_or_default();
-        return Err(format!("notifications ingest failed ({status}): {text}"));
+        .await;
+    let result = match response {
+        Err(err) => Err(format!("notifications unreachable: {err}")),
+        Ok(res) => {
+            if !res.status().is_success() {
+                let status = res.status();
+                let text = res.text().await.unwrap_or_default();
+                Err(format!("notifications ingest failed ({status}): {text}"))
+            } else {
+                match res.json::<IngestResponse>().await {
+                    Ok(body) if body.ok => Ok(()),
+                    Ok(_) => Err("notifications ingest returned ok=false".into()),
+                    Err(err) => Err(format!("notifications bad response: {err}")),
+                }
+            }
+        }
+    };
+    if let Err(err) = &result {
+        tracing::warn!(kind = notification.kind, %err, "notification push failed");
     }
-
-    let body: IngestResponse = response
-        .json()
-        .await
-        .map_err(|e| format!("notifications bad response: {e}"))?;
-    if !body.ok {
-        return Err("notifications ingest returned ok=false".into());
-    }
-    Ok(())
+    result
 }
 
 /// Human-readable name for a role, used in notification copy.
