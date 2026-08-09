@@ -257,5 +257,29 @@ pub async fn assign_lead(
     .fetch_all(&state.pool)
     .await?;
 
+    for partner_id in &req.partner_company_ids {
+        let recipient_ids = crate::handlers::users::partner_user_auth_ids(&state, *partner_id).await;
+        if recipient_ids.is_empty() {
+            continue;
+        }
+        let partner_name = assignments
+            .iter()
+            .find(|a| a.partner_company_id == *partner_id)
+            .map(|a| a.partner_name.as_str())
+            .unwrap_or("a partner");
+        let _ = crate::notifications::push(
+            &state.config,
+            crate::notifications::IngestNotification {
+                recipient_ids,
+                kind: "lead_assigned",
+                title: "New lead assigned to you",
+                body: &format!("A lead was assigned to {partner_name}"),
+                link: Some(&format!("/partner/leads/")),
+                reference_id: Some(&id.to_string()),
+            },
+        )
+        .await;
+    }
+
     Ok(Json(assignments))
 }

@@ -4,6 +4,7 @@ pub mod db;
 pub mod error;
 pub mod handlers;
 pub mod jwt;
+pub mod notifications;
 pub mod request_id;
 pub mod routes;
 pub mod state;

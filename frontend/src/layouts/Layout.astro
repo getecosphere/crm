@@ -47,6 +47,19 @@ const fullTitle = title === 'CRM' ? 'CRM' : `${title} | CRM`;
 
           <div class="flex items-center gap-3">
             <span id="header-role-badge" class="hidden badge"></span>
+            <div class="relative hidden" id="notifications-bell-wrap">
+              <button id="btn-notifications" type="button" aria-label="Notifications" aria-expanded="false" aria-controls="notifications-panel" class="relative flex size-10 items-center justify-center rounded-full border border-slate-200 bg-white text-surface-600 shadow-xs transition-colors hover:bg-surface-50 hover:text-surface-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500">
+                <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <span id="notifications-badge" class="absolute -right-1 -top-1 hidden min-w-[1.125rem] rounded-full bg-primary-600 px-1 py-px text-center text-[10px] font-bold leading-4 text-white shadow-xs">0</span>
+              </button>
+              <div id="notifications-panel" class="absolute right-0 top-12 z-50 hidden w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                  <p class="text-sm font-bold text-surface-900">Notifications</p>
+                  <button id="btn-notifications-read-all" type="button" class="text-xs font-bold text-primary-700 hover:underline">Mark all read</button>
+                </div>
+                <div id="notifications-list" class="max-h-96 overflow-y-auto"></div>
+              </div>
+            </div>
             <div class="flex items-center gap-2.5">
               <div class="avatar" id="header-avatar"></div>
               <div class="hidden sm:block leading-tight">
@@ -184,4 +197,132 @@ const fullTitle = title === 'CRM' ? 'CRM' : `${title} | CRM`;
   });
 
   setup();
+
+  // ─── Notifications bell (all authenticated pages) ─────────────────────────
+  const notificationsApi = import.meta.env.PUBLIC_NOTIFICATIONS_URL || '/api/notifications';
+  const notificationsBell = document.getElementById('btn-notifications');
+  const notificationsBadge = document.getElementById('notifications-badge');
+  const notificationsPanel = document.getElementById('notifications-panel');
+  const notificationsList = document.getElementById('notifications-list');
+  let notificationsSocket;
+  let notificationReconnectTimer;
+  let notificationUnread = 0;
+  let recentNotifications = [];
+
+  const notificationHeaders = () => ({ 'Authorization': `Bearer ${getSession()?.token}` });
+  const escapeNotification = (value) => String(value || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
+  const notificationTime = (value) => {
+    const date = new Date(value || 0);
+    if (Number.isNaN(date.getTime())) return '';
+    const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  };
+  const renderNotificationBadge = () => {
+    if (!notificationsBadge) return;
+    if (notificationUnread > 0) {
+      notificationsBadge.textContent = notificationUnread > 99 ? '99+' : String(notificationUnread);
+      notificationsBadge.classList.remove('hidden');
+    } else {
+      notificationsBadge.classList.add('hidden');
+    }
+  };
+  const renderNotificationsList = () => {
+    if (!notificationsList) return;
+    if (!recentNotifications.length) {
+      notificationsList.innerHTML = '<p class="p-6 text-center text-xs text-surface-500">No notifications yet. Activity on your customers, leads, and sales will appear here.</p>';
+      return;
+    }
+    notificationsList.innerHTML = recentNotifications.map((notification) => `
+      <a href="${escapeNotification(notification.link || '#')}" data-notification-id="${escapeNotification(notification.id || '')}" class="flex gap-3 border-b border-slate-100 px-4 py-3 transition-colors hover:bg-surface-50 ${notification.read ? '' : 'bg-primary-50/40'}">
+        <span class="mt-1.5 size-2 shrink-0 rounded-full ${notification.read ? 'bg-transparent' : 'bg-primary-600'}" aria-hidden="true"></span>
+        <span class="min-w-0">
+          <span class="block truncate text-xs font-bold text-surface-900">${escapeNotification(notification.title || 'Notification')}</span>
+          <span class="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-surface-600">${escapeNotification(notification.body || '')}</span>
+          <span class="mt-1 block text-[10px] text-surface-400">${notificationTime(notification.createdAt)}</span>
+        </span>
+      </a>`).join('');
+    notificationsList.querySelectorAll('[data-notification-id]').forEach((link) => {
+      link.addEventListener('click', () => {
+        const id = link.dataset.notificationId;
+        if (!id) return;
+        fetch(`${notificationsApi}/${encodeURIComponent(id)}/read`, { method: 'POST', headers: notificationHeaders() }).catch(() => {});
+        const item = recentNotifications.find((entry) => entry.id === id);
+        if (item) item.read = true;
+        notificationUnread = Math.max(0, notificationUnread - 1);
+        renderNotificationBadge();
+        renderNotificationsList();
+      });
+    });
+  };
+  const openNotificationsSocket = () => {
+    const session = getSession();
+    if (!session?.token) return;
+    window.clearTimeout(notificationReconnectTimer);
+    const socket = new WebSocket(`${notificationsApi.replace(/^http/, 'ws')}/ws?token=${encodeURIComponent(session.token)}`);
+    notificationsSocket = socket;
+    socket.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'init') {
+          notificationUnread = Number(payload.unread_count || 0);
+          recentNotifications = Array.isArray(payload.notifications) ? payload.notifications : [];
+          renderNotificationBadge();
+          renderNotificationsList();
+        } else if (payload.type === 'notification') {
+          recentNotifications = [payload.notification, ...recentNotifications.filter((entry) => entry.id !== payload.notification?.id)].slice(0, 50);
+          renderNotificationsList();
+        } else if (payload.type === 'unread') {
+          notificationUnread = Number(payload.unread_count || 0);
+          renderNotificationBadge();
+        }
+      } catch { /* ignore malformed frames */ }
+    };
+    socket.onclose = () => {
+      if (notificationsSocket === socket) notificationsSocket = undefined;
+      notificationReconnectTimer = window.setTimeout(openNotificationsSocket, 5000);
+    };
+    socket.onerror = () => socket.close();
+  };
+  const loadNotifications = async () => {
+    if (!getSession()?.token) return;
+    notificationsBell?.classList.remove('hidden');
+    notificationsBell?.classList.add('flex');
+    try {
+      const [listResponse, countResponse] = await Promise.all([
+        fetch(`${notificationsApi}?limit=20`, { headers: notificationHeaders() }),
+        fetch(`${notificationsApi}/unread-count`, { headers: notificationHeaders() })
+      ]);
+      if (listResponse.ok) recentNotifications = await listResponse.json();
+      if (countResponse.ok) notificationUnread = Number((await countResponse.json()).unread_count || 0);
+      renderNotificationBadge();
+      renderNotificationsList();
+    } catch { /* keep the bell hidden on failure */ }
+    openNotificationsSocket();
+  };
+  notificationsBell?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const isOpen = notificationsPanel?.classList.toggle('hidden') === false;
+    notificationsBell.setAttribute('aria-expanded', String(isOpen));
+  });
+  document.getElementById('btn-notifications-read-all')?.addEventListener('click', async (event) => {
+    event.stopPropagation();
+    if (!getSession()?.token) return;
+    try { await fetch(`${notificationsApi}/read-all`, { method: 'POST', headers: notificationHeaders() }); } catch {}
+    recentNotifications.forEach((entry) => { entry.read = true; });
+    notificationUnread = 0;
+    renderNotificationBadge();
+    renderNotificationsList();
+  });
+  document.addEventListener('click', (event) => {
+    if (notificationsPanel?.classList.contains('hidden')) return;
+    const wrap = document.getElementById('notifications-bell-wrap');
+    if (wrap && !wrap.contains(event.target)) {
+      notificationsPanel.classList.add('hidden');
+      notificationsBell?.setAttribute('aria-expanded', 'false');
+    }
+  });
+  if (getSession()?.token) loadNotifications();
 </script>

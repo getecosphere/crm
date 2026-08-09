@@ -137,6 +137,30 @@ pub async fn create_customer(
 
     tx.commit().await?;
 
+    let customer_name = format!(
+        "{} {}",
+        req.first_name.trim(),
+        req.last_name.trim()
+    );
+    let lead_count = leads.len();
+    let admin_ids = crate::handlers::users::admin_auth_user_ids(&state).await;
+    let _ = crate::notifications::push(
+        &state.config,
+        crate::notifications::IngestNotification {
+            recipient_ids: admin_ids,
+            kind: "customer_registered",
+            title: "New customer registered",
+            body: &format!(
+                "{customer_name} was registered by {} with {lead_count} lead{}",
+                user.name,
+                if lead_count == 1 { "" } else { "s" }
+            ),
+            link: Some(&format!("/admin/customer/?id={customer_id}")),
+            reference_id: Some(&customer_id.to_string()),
+        },
+    )
+    .await;
+
     Ok((
         StatusCode::CREATED,
         Json(serde_json::json!({

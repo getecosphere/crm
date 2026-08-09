@@ -15,6 +15,7 @@ pub struct AppConfig {
     pub jwt_secret: String,
     pub server_port: u16,
     pub cors_allowed_origins: Vec<String>,
+    pub notifications_api_url: String,
 }
 
 impl AppConfig {
@@ -64,6 +65,8 @@ impl AppConfig {
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty())
                 .collect(),
+            notifications_api_url: env::var("NOTIFICATIONS_API_URL")
+                .unwrap_or_else(|_| "http://localhost:8090/api/notifications".to_string()),
         })
     }
 }

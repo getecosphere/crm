@@ -234,3 +234,41 @@ pub async fn update_user(
 
     Ok(Json(row))
 }
+
+/// Auth user ids of all active administrators — used as notification
+/// recipients when an event needs to reach the admins (for example a sales
+/// rep registering a customer, or a partner recording a sale).
+pub async fn admin_auth_user_ids(state: &AppState) -> Vec<String> {
+    sqlx::query_scalar::<_, String>(
+        "SELECT auth_user_id FROM users WHERE role = 'ADMIN' AND status = 'active'",
+    )
+    .fetch_all(&state.pool)
+    .await
+    .unwrap_or_default()
+}
+
+/// Auth user ids of active users belonging to a partner company — used as
+/// notification recipients when a lead is assigned to that partner.
+pub async fn partner_user_auth_ids(state: &AppState, partner_company_id: Uuid) -> Vec<String> {
+    sqlx::query_scalar::<_, String>(
+        "SELECT auth_user_id FROM users WHERE partner_company_id = $1 AND status = 'active'",
+    )
+    .bind(partner_company_id)
+    .fetch_all(&state.pool)
+    .await
+    .unwrap_or_default()
+}
+
+/// The sales rep who created a lead — the auth user id, or None.
+pub async fn lead_creator_auth_id(state: &AppState, lead_id: Uuid) -> Option<String> {
+    sqlx::query_scalar::<_, String>(
+        "SELECT u.auth_user_id
+         FROM leads l JOIN users u ON u.id = l.created_by_user_id
+         WHERE l.id = $1",
+    )
+    .bind(lead_id)
+    .fetch_optional(&state.pool)
+    .await
+    .ok()
+    .flatten()
+}

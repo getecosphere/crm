@@ -59,9 +59,9 @@ async fn load_and_authorize(
     state: &AppState,
     user: &CrmUser,
     assignment_id: Uuid,
-) -> Result<(Uuid, Uuid), AppError> {
-    let assignment = sqlx::query_as::<_, (Uuid, Uuid)>(
-        "SELECT id, partner_company_id FROM lead_assignments WHERE id = $1",
+) -> Result<(Uuid, Uuid, Uuid), AppError> {
+    let assignment = sqlx::query_as::<_, (Uuid, Uuid, Uuid)>(
+        "SELECT id, partner_company_id, lead_id FROM lead_assignments WHERE id = $1",
     )
     .bind(assignment_id)
     .fetch_optional(&state.pool)
@@ -79,6 +79,40 @@ async fn load_and_authorize(
         return Err(AppError::Forbidden("Access denied".into()));
     }
     Ok(assignment)
+}
+
+/// Notifies the sales rep who created the lead, plus every admin, about a
+/// partner action on an assignment (status change, sale, no-sale).
+async fn notify_lead_progress(
+    state: &AppState,
+    lead_id: Uuid,
+    partner_name: &str,
+    title: &str,
+    body: String,
+) {
+    let _ = partner_name;
+    let mut recipient_ids =
+        crate::handlers::users::admin_auth_user_ids(state).await;
+    if let Some(creator) = crate::handlers::users::lead_creator_auth_id(state, lead_id).await {
+        if !recipient_ids.contains(&creator) {
+            recipient_ids.push(creator);
+        }
+    }
+    if recipient_ids.is_empty() {
+        return;
+    }
+    let _ = crate::notifications::push(
+        &state.config,
+        crate::notifications::IngestNotification {
+            recipient_ids,
+            kind: "assignment_progress",
+            title,
+            body: &body,
+            link: Some(&format!("/admin/lead/?id={lead_id}")),
+            reference_id: Some(&lead_id.to_string()),
+        },
+    )
+    .await;
 }
 
 pub async fn list_assignments(
@@ -120,7 +154,7 @@ pub async fn get_assignment(
     CurrentUser(user): CurrentUser,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let (_, _) = load_and_authorize(&state, &user, id).await?;
+    let (_, _, _) = load_and_authorize(&state, &user, id).await?;
 
     let assignment = sqlx::query(
         "SELECT jsonb_build_object(
@@ -201,7 +235,7 @@ pub async fn update_status(
             "Use the dedicated sale / no-sale endpoints for those outcomes".into(),
         ));
     }
-    load_and_authorize(&state, &user, id).await?;
+    let (_assignment_id, _partner_id, lead_id) = load_and_authorize(&state, &user, id).await?;
 
     let updated = sqlx::query(
         "UPDATE lead_assignments SET status = $2, no_sale_reason = NULL, no_sale_notes = NULL, updated_at = now()
@@ -214,6 +248,26 @@ pub async fn update_status(
     .await?
     .get::<serde_json::Value, _>(0);
 
+    let status_label = status
+        .split('_')
+        .map(|w| {
+            let mut c = w.chars();
+            match c.next() {
+                Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ");
+    notify_lead_progress(
+        &state,
+        lead_id,
+        &user.name,
+        "Lead status updated",
+        format!("{status_label} — {}", user.name),
+    )
+    .await;
+
     Ok(Json(updated))
 }
 
@@ -223,7 +277,7 @@ pub async fn register_sale(
     Path(id): Path<Uuid>,
     Json(req): Json<RegisterSaleRequest>,
 ) -> AppResult<(StatusCode, Json<serde_json::Value>)> {
-    load_and_authorize(&state, &user, id).await?;
+    let (_assignment_id, _partner_id, lead_id) = load_and_authorize(&state, &user, id).await?;
 
     let mut tx = state.pool.begin().await?;
     sqlx::query(
@@ -247,6 +301,15 @@ pub async fn register_sale(
     .await?;
     tx.commit().await?;
 
+    notify_lead_progress(
+        &state,
+        lead_id,
+        &user.name,
+        "Sale registered",
+        format!("A sale was registered by {}", user.name),
+    )
+    .await;
+
     Ok((
         StatusCode::CREATED,
         Json(serde_json::json!({ "id": sale_id, "status": "SALE" })),
@@ -259,7 +322,7 @@ pub async fn register_no_sale(
     Path(id): Path<Uuid>,
     Json(req): Json<NoSaleRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    load_and_authorize(&state, &user, id).await?;
+    let (_assignment_id, _partner_id, lead_id) = load_and_authorize(&state, &user, id).await?;
 
     let updated = sqlx::query(
         "UPDATE lead_assignments SET status = 'NO_SALE', no_sale_reason = $2, no_sale_notes = $3, updated_at = now()
@@ -272,6 +335,21 @@ pub async fn register_no_sale(
     .fetch_one(&state.pool)
     .await?
     .get::<serde_json::Value, _>(0);
+
+    let reason = req
+        .reason
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or("No sale");
+    notify_lead_progress(
+        &state,
+        lead_id,
+        &user.name,
+        "No-sale recorded",
+        format!("{reason} — recorded by {}", user.name),
+    )
+    .await;
 
     Ok(Json(updated))
 }
