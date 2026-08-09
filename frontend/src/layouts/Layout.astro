@@ -53,8 +53,19 @@ const { title = 'CRM' } = Astro.props;
 </body>
 </html>
 
-<script type="module">
-  import { getSession, isLoggedIn, getUser } from '../lib/session.js';
+<script>
+  // Inlined session helpers (module imports don't resolve in Astro static build)
+  function getSession() {
+    try {
+      const raw = localStorage.getItem('crm_session');
+      if (!raw) return null;
+      const session = JSON.parse(raw);
+      if (session.expires_at && session.expires_at < Date.now()) { localStorage.removeItem('crm_session'); return null; }
+      return session;
+    } catch { localStorage.removeItem('crm_session'); return null; }
+  }
+  function isLoggedIn() { return !!getSession(); }
+  function getUser() { const s = getSession(); return s ? s.user : null; }
 
   function setupAuth() {
     if (!isLoggedIn()) {
