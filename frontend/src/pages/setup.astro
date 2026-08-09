@@ -92,7 +92,7 @@ const pageUrl = siteUrl ? `${siteUrl}/setup/` : '/setup/';
     btn.textContent = 'Creating account…';
 
     try {
-      const registerRes = await fetch(`${AUTH}/api/auth/register-with-profile`, {
+      const registerRes = await fetch(`${AUTH}/auth/register-with-profile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),

@@ -80,7 +80,7 @@ const pageUrl = siteUrl ? `${siteUrl}/auth/login/` : '/auth/login/';
     btn.textContent = 'Signing in…';
 
     try {
-      const res = await fetch(`${AUTH}/api/auth/login`, {
+      const res = await fetch(`${AUTH}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

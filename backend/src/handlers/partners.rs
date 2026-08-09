@@ -76,6 +76,7 @@ pub struct UpdatePartnerRequest {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CategoryIdsRequest {
     pub product_category_ids: Vec<Uuid>,
 }

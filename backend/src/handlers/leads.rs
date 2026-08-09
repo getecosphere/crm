@@ -47,6 +47,7 @@ pub struct ListQuery {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AssignRequest {
     pub partner_company_ids: Vec<Uuid>,
 }

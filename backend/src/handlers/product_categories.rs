@@ -56,6 +56,7 @@ pub struct UpdateCategoryRequest {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PartnerIdsRequest {
     pub partner_company_ids: Vec<Uuid>,
 }

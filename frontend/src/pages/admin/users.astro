@@ -106,7 +106,7 @@ import Layout from '../../layouts/Layout.astro';
     btn.disabled = true;
     btn.textContent = 'Creating…';
     try {
-      const { id: authUserId } = await authRequest('POST', '/api/auth/register', {
+      const { id: authUserId } = await authRequest('POST', '/auth/register', {
         username: document.getElementById('username').value.trim(),
         email: document.getElementById('email').value.trim(),
         password: document.getElementById('password').value,
