@@ -36,6 +36,7 @@ pub struct CustomerRow {
 #[serde(rename_all = "camelCase")]
 pub struct CustomerListItem {
     #[sqlx(flatten)]
+    #[serde(flatten)]
     pub customer: CustomerRow,
     pub created_by_name: String,
     pub leads_count: i64,

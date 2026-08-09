@@ -28,6 +28,7 @@ pub struct CategoryRow {
 #[serde(rename_all = "camelCase")]
 pub struct CategoryListItem {
     #[sqlx(flatten)]
+    #[serde(flatten)]
     pub category: CategoryRow,
     pub partners_count: i64,
     pub leads_count: i64,

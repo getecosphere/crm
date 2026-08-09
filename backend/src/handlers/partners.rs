@@ -30,6 +30,7 @@ pub struct PartnerRow {
 #[serde(rename_all = "camelCase")]
 pub struct PartnerListItem {
     #[sqlx(flatten)]
+    #[serde(flatten)]
     pub partner: PartnerRow,
     pub categories: Vec<String>,
     pub assigned_leads: i64,
