@@ -12,6 +12,12 @@
   ::selection {
     @apply bg-primary-600 text-white;
   }
+  .font-display {
+    font-family: theme('fontFamily.display');
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 @layer components {

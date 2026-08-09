@@ -1,6 +1,11 @@
 ---
+import '../styles/global.css';
+
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || '';
 const pageUrl = siteUrl ? `${siteUrl}/` : '/';
+const ogImage = siteUrl ? `${siteUrl}/og-image.webp` : '/og-image.webp';
+const title = 'CRM — Lead Distribution Platform';
+const description = 'A focused lead distribution CRM. Sales teams register customers and submit product-interest leads, administrators route them to partner companies, and partners close sales with full visibility.';
 ---
 
 <!doctype html>
@@ -8,25 +13,234 @@ const pageUrl = siteUrl ? `${siteUrl}/` : '/';
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CRM — Lead Distribution Platform</title>
-  <meta name="description" content="Lead distribution CRM for sales representatives and partner companies." />
+  <meta name="generator" content={Astro.generator} />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0f1e1a" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="canonical" href={pageUrl} />
-  <meta property="og:title" content="CRM — Lead Distribution Platform" />
-  <meta property="og:description" content="Lead distribution CRM for sales representatives and partner companies." />
-  <meta property="og:url" content={pageUrl} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content={pageUrl} />
   <meta property="og:site_name" content="CRM" />
-  <link rel="icon" href="/favicon.svg" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:secure_url" content={ogImage} />
+  <meta property="og:image:type" content="image/webp" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: #fafafa; }
+    body { font-family: 'Onest', ui-sans-serif, system-ui, sans-serif; font-feature-settings: 'cv02', 'cv03'; }
+    .font-display { font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif; }
   </style>
 </head>
-<body>
-  <div id="root" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#525252;">
-    <div class="spinner" style="width:36px;height:36px;border:4px solid #e0e7ff;border-top-color:#4f46e5;border-radius:9999px;animation:spin .8s linear infinite;"></div>
-    <p style="margin:0;font-size:14px;">Loading CRM…</p>
-  </div>
-  <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+<body class="bg-paper-50 text-navy-900 antialiased selection:bg-brand-500 selection:text-white">
+  <header class="sticky top-0 z-40 border-b border-navy-100 bg-white/90 backdrop-blur-md shadow-[0_1px_2px_rgba(15,30,25,0.06)]">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+      <a href="/" class="flex items-center gap-2.5" aria-label="CRM home">
+        <span class="flex size-9 items-center justify-center rounded-lg bg-navy-900">
+          <svg class="size-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M9 13h6M9 16h4"/></svg>
+        </span>
+        <span class="font-display text-lg font-extrabold tracking-tight">CRM</span>
+      </a>
+
+      <nav class="hidden items-center gap-6 text-sm font-semibold text-slate-600 md:flex" aria-label="Primary">
+        <a href="#how-it-works" class="transition-colors hover:text-navy-900">How it works</a>
+        <a href="#roles" class="transition-colors hover:text-navy-900">For your team</a>
+        <a href="#features" class="transition-colors hover:text-navy-900">Features</a>
+      </nav>
+
+      <div class="flex items-center gap-2.5">
+        <a href="/auth/login/" class="rounded-lg border border-navy-100 bg-white px-4 py-2 text-sm font-bold text-navy-900 shadow-sm transition-colors hover:bg-paper-100">Sign in</a>
+        <a href="/auth/login/" id="header-dashboard" class="hidden rounded-lg bg-navy-900 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-navy-800">Open dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="relative overflow-hidden border-b border-navy-100 bg-gradient-to-br from-paper-50 via-paper-100 to-clay-50">
+      <div class="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-clay-200/30 blur-3xl" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -bottom-32 -left-20 size-80 rounded-full bg-navy-200/30 blur-3xl" aria-hidden="true"></div>
+
+      <div class="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+        <div class="mx-auto max-w-3xl text-center">
+          <span class="inline-flex items-center gap-2 rounded-md border border-navy-100 bg-white px-3 py-1 text-xs font-bold text-navy-700 shadow-sm">
+            <span class="size-1.5 rounded-full bg-brand-600" aria-hidden="true"></span>
+            Lead distribution for partner networks
+          </span>
+          <h1 class="font-display mt-6 text-4xl font-extrabold leading-tight tracking-tight text-navy-900 sm:text-5xl">
+            Route every customer interest to the right partner.
+          </h1>
+          <p class="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
+            Sales representatives register customers and submit product-interest leads in seconds. Administrators route those leads to partner companies. Partners track every conversation and record the outcome — a sale or a no-sale — with full visibility at every step.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <a href="/auth/login/" class="rounded-lg bg-navy-900 px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-navy-800">Sign in to your workspace</a>
+            <a href="#how-it-works" class="rounded-lg border border-navy-100 bg-white px-6 py-3 text-sm font-bold text-navy-900 shadow-sm transition-colors hover:bg-paper-100">See how it works</a>
+          </div>
+        </div>
+
+        <!-- Flow strip -->
+        <div class="mx-auto mt-14 grid max-w-4xl gap-3 sm:grid-cols-3">
+          <div class="card rounded-xl p-5">
+            <p class="text-xs font-bold uppercase tracking-wider text-clay-600">Sales team</p>
+            <p class="mt-2 text-sm font-bold text-navy-900">Register customer</p>
+            <p class="mt-1 text-xs leading-relaxed text-slate-600">One screen to capture the customer and the product categories they are interested in.</p>
+          </div>
+          <div class="card rounded-xl p-5">
+            <p class="text-xs font-bold uppercase tracking-wider text-navy-500">Administrator</p>
+            <p class="mt-2 text-sm font-bold text-navy-900">Assign leads</p>
+            <p class="mt-1 text-xs leading-relaxed text-slate-600">Distribute each lead to the partner companies eligible for that product category.</p>
+          </div>
+          <div class="card rounded-xl p-5">
+            <p class="text-xs font-bold uppercase tracking-wider text-brand-600">Partner</p>
+            <p class="mt-2 text-sm font-bold text-navy-900">Close the sale</p>
+            <p class="mt-1 text-xs leading-relaxed text-slate-600">Work the lead through its lifecycle and record every sale — and every no-sale reason.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how-it-works" class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <div class="max-w-2xl">
+        <h2 class="font-display text-2xl font-extrabold tracking-tight text-navy-900 sm:text-3xl">Built for a single, clear workflow</h2>
+        <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">Every part of the platform exists to move a customer conversation forward — from first contact to a recorded outcome.</p>
+      </div>
+
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        <div class="card rounded-xl p-6">
+          <div class="flex size-10 items-center justify-center rounded-lg bg-navy-900 text-sm font-bold text-white">1</div>
+          <h3 class="mt-4 text-sm font-bold text-navy-900">A customer is not a lead</h3>
+          <p class="mt-2 text-xs leading-relaxed text-slate-600">One customer may be interested in several products. The platform keeps the customer record separate from each individual product-interest lead.</p>
+        </div>
+        <div class="card rounded-xl p-6">
+          <div class="flex size-10 items-center justify-center rounded-lg bg-navy-900 text-sm font-bold text-white">2</div>
+          <h3 class="mt-4 text-sm font-bold text-navy-900">A lead is not an assignment</h3>
+          <p class="mt-2 text-xs leading-relaxed text-slate-600">A lead can be sent to several partner companies. Each partner works the lead independently, so a sale by one partner never blocks another.</p>
+        </div>
+        <div class="card rounded-xl p-6">
+          <div class="flex size-10 items-center justify-center rounded-lg bg-navy-900 text-sm font-bold text-white">3</div>
+          <h3 class="mt-4 text-sm font-bold text-navy-900">Outcomes are attributed</h3>
+          <p class="mt-2 text-xs leading-relaxed text-slate-600">Every sale and no-sale is recorded against the partner that processed the lead — the foundation for real performance reporting.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Roles -->
+    <section id="roles" class="border-y border-navy-100 bg-white">
+      <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <div class="max-w-2xl">
+          <h2 class="font-display text-2xl font-extrabold tracking-tight text-navy-900 sm:text-3xl">One platform, three roles</h2>
+          <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">Each team member sees exactly what they need, and nothing else.</p>
+        </div>
+
+        <div class="mt-10 grid gap-6 md:grid-cols-3">
+          <div class="rounded-xl border border-navy-100 bg-paper-50 p-6">
+            <span class="inline-flex rounded-md bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-700">Sales Representative</span>
+            <h3 class="mt-4 text-sm font-bold text-navy-900">Register customers and submit leads fast</h3>
+            <ul class="mt-3 space-y-2 text-xs leading-relaxed text-slate-600">
+              <li class="flex gap-2"><span class="mt-0.5 text-brand-600">&#10003;</span> Capture customer details on one screen</li>
+              <li class="flex gap-2"><span class="mt-0.5 text-brand-600">&#10003;</span> Select every product category they are interested in</li>
+              <li class="flex gap-2"><span class="mt-0.5 text-brand-600">&#10003;</span> Submit the customer and its leads in a single action</li>
+            </ul>
+          </div>
+          <div class="rounded-xl border border-navy-100 bg-paper-50 p-6">
+            <span class="inline-flex rounded-md bg-purple-100 px-2.5 py-1 text-xs font-bold text-purple-700">Administrator</span>
+            <h3 class="mt-4 text-sm font-bold text-navy-900">Run the network</h3>
+            <ul class="mt-3 space-y-2 text-xs leading-relaxed text-slate-600">
+              <li class="flex gap-2"><span class="mt-0.5 text-brand-600">&#10003;</span> Manage representatives, partners, and product categories</li>
+              <li class="flex gap-2"><span class="mt-0.5 text-brand-600">&#10003;</span> Assign leads to eligible partner companies</li>
+              <li class="flex gap-2"><span class="mt-0.5 text-brand-600">&#10003;</span> Watch sales and no-sales roll up on the dashboard</li>
+            </ul>
+          </div>
+          <div class="rounded-xl border border-navy-100 bg-paper-50 p-6">
+            <span class="inline-flex rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">Partner</span>
+            <h3 class="mt-4 text-sm font-bold text-navy-900">Process assigned leads with clarity</h3>
+            <ul class="mt-3 space-y-2 text-xs leading-relaxed text-slate-600">
+              <li class="flex gap-2"><span class="mt-0.5 text-brand-600">&#10003;</span> See only the leads assigned to your company</li>
+              <li class="flex gap-2"><span class="mt-0.5 text-brand-600">&#10003;</span> Move each lead from new to contacted to in-progress</li>
+              <li class="flex gap-2"><span class="mt-0.5 text-brand-600">&#10003;</span> Register a sale, or a no-sale with a reason</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <div class="max-w-2xl">
+        <h2 class="font-display text-2xl font-extrabold tracking-tight text-navy-900 sm:text-3xl">Everything measured, nothing hidden</h2>
+        <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">Operational clarity without enterprise complexity.</p>
+      </div>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="card rounded-xl p-5">
+          <h3 class="text-sm font-bold text-navy-900">Role-scoped dashboards</h3>
+          <p class="mt-2 text-xs leading-relaxed text-slate-600">Each role lands on its own operational dashboard with the metrics that matter to it.</p>
+        </div>
+        <div class="card rounded-xl p-5">
+          <h3 class="text-sm font-bold text-navy-900">Live status at a glance</h3>
+          <p class="mt-2 text-xs leading-relaxed text-slate-600">New, contacted, in-progress, sale, and no-sale — one consistent status model across every lead.</p>
+        </div>
+        <div class="card rounded-xl p-5">
+          <h3 class="text-sm font-bold text-navy-900">Category-based routing</h3>
+          <p class="mt-2 text-xs leading-relaxed text-slate-600">Partners are eligible for specific product categories, so assignments always make sense.</p>
+        </div>
+        <div class="card rounded-xl p-5">
+          <h3 class="text-sm font-bold text-navy-900">Searchable records</h3>
+          <p class="mt-2 text-xs leading-relaxed text-slate-600">Customers, leads, and assignments are searchable and filterable on every list page.</p>
+        </div>
+        <div class="card rounded-xl p-5">
+          <h3 class="text-sm font-bold text-navy-900">Audit trail</h3>
+          <p class="mt-2 text-xs leading-relaxed text-slate-600">Every record records who created it and when — so attribution is never guesswork.</p>
+        </div>
+        <div class="card rounded-xl p-5">
+          <h3 class="text-sm font-bold text-navy-900">Ready for what is next</h3>
+          <p class="mt-2 text-xs leading-relaxed text-slate-600">The data model is built for future automatic routing and API integrations without restructuring.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="border-t border-navy-100 bg-navy-950">
+      <div class="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6">
+        <h2 class="font-display text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Ready to route your first lead?</h2>
+        <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-navy-200">Sign in to your workspace and continue where your team left off.</p>
+        <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
+          <a href="/auth/login/" class="rounded-lg bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-700">Sign in</a>
+          <a href="/setup/" class="rounded-lg border border-navy-700 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-navy-800">Set up a workspace</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-navy-100 bg-white py-10">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-left">
+        <div class="flex items-center gap-2.5">
+          <span class="flex size-8 items-center justify-center rounded-lg bg-navy-900">
+            <svg class="size-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M9 13h6M9 16h4"/></svg>
+          </span>
+          <span class="font-display text-base font-extrabold tracking-tight text-navy-900">CRM</span>
+        </div>
+        <p class="text-xs text-slate-500">Lead distribution for sales representatives, administrators, and partner companies.</p>
+        <p class="text-xs text-slate-400">&copy; 2026 CRM</p>
+      </div>
+    </div>
+  </footer>
+
+  <div id="crm-toasts" class="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex flex-col items-center gap-2 px-4 sm:bottom-5 sm:right-5 sm:items-end sm:px-0" aria-live="polite" aria-atomic="false"></div>
 </body>
 </html>
 
@@ -34,19 +248,42 @@ const pageUrl = siteUrl ? `${siteUrl}/` : '/';
   const CRM = (import.meta.env.PUBLIC_CRM_URL || '/api').replace(/\/$/, '');
   const SESSION_KEY = 'crm_session';
 
-  function routeBySession() {
+  function roleHome(role) {
+    if (role === 'ADMIN') return '/admin/dashboard/';
+    if (role === 'SALES_REP') return '/sales/dashboard/';
+    if (role === 'PARTNER') return '/partner/dashboard/';
+    return null;
+  }
+
+  function readSession() {
     try {
       const raw = localStorage.getItem(SESSION_KEY);
-      if (!raw) throw new Error('no session');
+      if (!raw) return null;
       const session = JSON.parse(raw);
-      if (session.expires_at && session.expires_at < Date.now()) throw new Error('expired');
-      const role = session.user?.role;
-      if (role === 'ADMIN') window.location.replace('/admin/dashboard/');
-      else if (role === 'SALES_REP') window.location.replace('/sales/dashboard/');
-      else if (role === 'PARTNER') window.location.replace('/partner/dashboard/');
-      else window.location.replace('/auth/login/');
+      if (session.expires_at && session.expires_at < Date.now()) {
+        localStorage.removeItem(SESSION_KEY);
+        return null;
+      }
+      return session;
     } catch {
-      window.location.replace('/auth/login/');
+      return null;
+    }
+  }
+
+  function setupSignedInState() {
+    const session = readSession();
+    const user = session?.user;
+    if (!user?.role) return;
+    const dashboard = document.getElementById('header-dashboard');
+    if (dashboard) {
+      dashboard.classList.remove('hidden');
+      dashboard.classList.add('inline-flex');
+      dashboard.setAttribute('href', roleHome(user.role) || '/auth/login/');
+    }
+    const heroSignIn = document.querySelector('a[href="/auth/login/"]');
+    if (heroSignIn && session?.token && roleHome(user.role)) {
+      heroSignIn.textContent = 'Open my dashboard';
+      heroSignIn.setAttribute('href', roleHome(user.role));
     }
   }
 
@@ -61,9 +298,9 @@ const pageUrl = siteUrl ? `${siteUrl}/` : '/';
         }
       }
     } catch {
-      // backend unreachable — fall through to session routing
+      // backend unreachable — the landing page still renders
     }
-    routeBySession();
+    setupSignedInState();
   }
 
   checkSetup();
