@@ -1,0 +1,70 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="My Leads">
+  <div class="space-y-6">
+    <h2 class="text-xl font-semibold text-surface-900">My Leads</h2>
+    <div id="leads-table"></div>
+    <div id="loading" class="flex justify-center py-12"></div>
+  </div>
+</Layout>
+
+<script>
+  import { apiGet, CRM_URL } from '../../lib/api.js';
+
+  async function loadLeads() {
+    document.getElementById('loading').innerHTML = '<div class="animate-spin w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full"></div>';
+    try {
+      const data = await apiGet(`${CRM_URL}/api/crm/leads/mine`);
+      const leads = Array.isArray(data) ? data : (data.leads || data.data || []);
+      render(leads);
+    } catch {
+      render([]);
+    }
+    document.getElementById('loading').innerHTML = '';
+  }
+
+  function statusBadge(status) {
+    const colors = { new: 'bg-blue-100 text-blue-700', contacted: 'bg-yellow-100 text-yellow-700', quoted: 'bg-orange-100 text-orange-700', negotiating: 'bg-purple-100 text-purple-700', won: 'bg-green-100 text-green-700', lost: 'bg-red-100 text-red-700' };
+    const c = colors[status] || colors.new;
+    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${c}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+  }
+
+  function render(leads) {
+    const el = document.getElementById('leads-table');
+    if (!leads.length) {
+      el.innerHTML = '<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center text-surface-400">No leads found. Start by registering a customer.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-sm">
+          <thead><tr class="border-b border-slate-200 bg-surface-50">
+            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Customer</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Email</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Phone</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Date</th>
+          </tr></thead>
+          <tbody class="divide-y divide-slate-100">
+            ${leads.map(l => `
+              <tr class="hover:bg-surface-50">
+                <td class="px-6 py-4 font-medium text-surface-900">${escapeHtml(l.customerName || l.customer_name || '—')}</td>
+                <td class="px-6 py-4 text-surface-500">${escapeHtml(l.customerEmail || l.customer_email || '—')}</td>
+                <td class="px-6 py-4 text-surface-500">${escapeHtml(l.customerPhone || l.customer_phone || l.phone || '—')}</td>
+                <td class="px-6 py-4">${statusBadge(l.status || 'new')}</td>
+                <td class="px-6 py-4 text-surface-500">${l.createdAt ? new Date(l.createdAt).toLocaleDateString() : '—'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  loadLeads();
+</script>

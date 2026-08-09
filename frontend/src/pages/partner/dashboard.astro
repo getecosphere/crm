@@ -1,0 +1,57 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Dashboard">
+  <div class="space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="stat-cards">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div class="flex items-start justify-between">
+          <div><p class="text-sm font-medium text-surface-500">Assigned Leads</p><p class="mt-2 text-3xl font-semibold text-surface-900" id="stat-total">—</p></div>
+          <div class="w-12 h-12 rounded-lg bg-primary-50 flex items-center justify-center">
+            <svg class="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div class="flex items-start justify-between">
+          <div><p class="text-sm font-medium text-surface-500">Won</p><p class="mt-2 text-3xl font-semibold text-surface-900" id="stat-won">—</p></div>
+          <div class="w-12 h-12 rounded-lg bg-success-50 flex items-center justify-center">
+            <svg class="w-6 h-6 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div class="flex items-start justify-between">
+          <div><p class="text-sm font-medium text-surface-500">Active</p><p class="mt-2 text-3xl font-semibold text-surface-900" id="stat-active">—</p></div>
+          <div class="w-12 h-12 rounded-lg bg-warning-50 flex items-center justify-center">
+            <svg class="w-6 h-6 text-warning-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { apiGet, CRM_URL } from '../../lib/api.js';
+
+  async function load() {
+    try {
+      const data = await apiGet(`${CRM_URL}/api/crm/leads/assigned`);
+      const leads = Array.isArray(data) ? data : (data.leads || data.data || []);
+      const won = leads.filter(l => l.status === 'won').length;
+      const active = leads.filter(l => !['won', 'lost'].includes(l.status)).length;
+
+      document.getElementById('stat-total').textContent = leads.length;
+      document.getElementById('stat-won').textContent = won;
+      document.getElementById('stat-active').textContent = active;
+    } catch {
+      document.getElementById('stat-total').textContent = '0';
+      document.getElementById('stat-won').textContent = '0';
+      document.getElementById('stat-active').textContent = '0';
+    }
+  }
+
+  load();
+</script>

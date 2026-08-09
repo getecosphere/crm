@@ -1,0 +1,151 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Partners">
+  <div class="space-y-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-semibold text-surface-900">Partner Companies</h2>
+      <button onclick="openCreateModal()"
+        class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors">
+        + Add Partner
+      </button>
+    </div>
+
+    <div id="partners-table"></div>
+    <div id="loading" class="flex justify-center py-12"></div>
+  </div>
+
+  <dialog id="partner-modal" class="group fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 opacity-0 transition-opacity open:opacity-100">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg scale-95 transition-transform group-open:scale-100">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+        <h3 class="text-lg font-semibold text-surface-900">Add Partner Company</h3>
+        <button type="button" onclick="closeModal()" class="p-1 rounded-lg text-surface-400 hover:text-surface-600 hover:bg-surface-100">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form id="partner-form" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-surface-700 mb-1.5">Company Name</label>
+          <input type="text" name="name" required
+            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-surface-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-surface-700 mb-1.5">Contact Email</label>
+          <input type="email" name="email"
+            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-surface-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-surface-700 mb-1.5">Phone</label>
+          <input type="text" name="phone"
+            class="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-surface-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"/>
+        </div>
+        <div id="modal-error" class="hidden p-3 rounded-lg bg-danger-50 text-danger-600 text-sm"></div>
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg border border-slate-300 text-surface-700 text-sm font-medium hover:bg-surface-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-50">Save</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+</Layout>
+
+<script>
+  import { apiGet, apiPost, apiDelete, PARTNERS_URL } from '../../lib/api.js';
+
+  let partners = [];
+
+  async function loadPartners() {
+    document.getElementById('loading').innerHTML = '<div class="animate-spin w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full"></div>';
+    try {
+      partners = await apiGet(`${PARTNERS_URL}/api/partners`);
+    } catch {
+      partners = [];
+    }
+    document.getElementById('loading').innerHTML = '';
+    render();
+  }
+
+  function render() {
+    const el = document.getElementById('partners-table');
+    if (!partners.length) {
+      el.innerHTML = '<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center text-surface-400">No partners found.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <table class="w-full text-sm">
+          <thead><tr class="border-b border-slate-200 bg-surface-50">
+            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Company</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Email</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase">Phone</th>
+            <th class="px-6 py-3 text-right text-xs font-semibold text-surface-500 uppercase">Actions</th>
+          </tr></thead>
+          <tbody class="divide-y divide-slate-100">
+            ${partners.map(p => `
+              <tr class="hover:bg-surface-50">
+                <td class="px-6 py-4 font-medium text-surface-900">${escapeHtml(p.name)}</td>
+                <td class="px-6 py-4 text-surface-500">${escapeHtml(p.email || '—')}</td>
+                <td class="px-6 py-4 text-surface-500">${escapeHtml(p.phone || '—')}</td>
+                <td class="px-6 py-4 text-right">
+                  <button onclick="deletePartner('${p.id}')" class="text-danger-600 hover:text-danger-800 font-medium text-xs">Delete</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function openCreateModal() {
+    document.getElementById('partner-modal').showModal();
+  }
+
+  function closeModal() {
+    document.getElementById('partner-modal').close();
+    document.getElementById('partner-form').reset();
+    document.getElementById('modal-error').classList.add('hidden');
+  }
+
+  async function deletePartner(id) {
+    if (!confirm('Delete this partner?')) return;
+    try {
+      await apiDelete(`${PARTNERS_URL}/api/partners/${id}`);
+      await loadPartners();
+    } catch (err) {
+      alert('Delete failed: ' + err.message);
+    }
+  }
+
+  document.getElementById('partner-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('button[type="submit"]');
+    const errorEl = document.getElementById('modal-error');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    errorEl.classList.add('hidden');
+
+    try {
+      await apiPost(`${PARTNERS_URL}/api/partners`, {
+        name: form.name.value,
+        email: form.email.value,
+        phone: form.phone.value,
+      });
+      closeModal();
+      await loadPartners();
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save';
+    }
+  });
+
+  loadPartners();
+</script>

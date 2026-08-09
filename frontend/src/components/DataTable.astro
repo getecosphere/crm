@@ -1,0 +1,38 @@
+---
+const { columns = [], data = [], emptyMessage = 'No data found.' } = Astro.props;
+---
+
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 bg-surface-50">
+          {columns.map(col => (
+            <th class="px-6 py-3 text-left text-xs font-semibold text-surface-500 uppercase tracking-wider">
+              {col.label}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {data.length === 0 ? (
+          <tr>
+            <td colSpan={columns.length} class="px-6 py-12 text-center text-surface-400">
+              {emptyMessage}
+            </td>
+          </tr>
+        ) : (
+          data.map((row, i) => (
+            <tr class="hover:bg-surface-50 transition-colors">
+              {columns.map(col => (
+                <td class="px-6 py-4 whitespace-nowrap text-surface-700">
+                  {col.render ? col.render(row, i) : (row[col.key] ?? '')}
+                </td>
+              ))}
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
