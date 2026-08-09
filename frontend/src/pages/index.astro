@@ -8,20 +8,41 @@
 </head>
 <body>
 <script>
-  try {
-    const raw = localStorage.getItem('crm_session');
-    if (!raw) throw new Error('no session');
-    const session = JSON.parse(raw);
-    if (session.expires_at && session.expires_at < Date.now()) throw new Error('expired');
+  const crmUrl = (import.meta as any).env?.PUBLIC_CRM_URL || '/api';
+  const authUrl = (import.meta as any).env?.PUBLIC_AUTH_URL || '/auth-api';
 
-    const role = session.user?.role;
-    if (role === 'ADMIN') window.location.replace('/admin/dashboard/');
-    else if (role === 'SALES_REP') window.location.replace('/sales/dashboard/');
-    else if (role === 'PARTNER') window.location.replace('/partner/dashboard/');
-    else window.location.replace('/auth/login/');
-  } catch {
-    window.location.replace('/auth/login/');
+  async function checkSetup() {
+    try {
+      const res = await fetch(crmUrl + '/crm/setup/status');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.initialized) {
+        window.location.replace('/setup/');
+        return;
+      }
+    } catch {
+      // if unreachable, fall through to login
+    }
+    routeBySession();
   }
+
+  function routeBySession() {
+    try {
+      const raw = localStorage.getItem('crm_session');
+      if (!raw) throw new Error('no session');
+      const session = JSON.parse(raw);
+      if (session.expires_at && session.expires_at < Date.now()) throw new Error('expired');
+      const role = session.user?.role;
+      if (role === 'ADMIN') window.location.replace('/admin/dashboard/');
+      else if (role === 'SALES_REP') window.location.replace('/sales/dashboard/');
+      else if (role === 'PARTNER') window.location.replace('/partner/dashboard/');
+      else window.location.replace('/auth/login/');
+    } catch {
+      window.location.replace('/auth/login/');
+    }
+  }
+
+  checkSetup();
 </script>
 </body>
 </html>
