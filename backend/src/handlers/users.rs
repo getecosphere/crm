@@ -87,29 +87,34 @@ pub async fn list_users(
     State(state): State<AppState>,
     CurrentUser(user): CurrentUser,
     Query(query): Query<ListQuery>,
-) -> AppResult<Json<Vec<UserRow>>> {
+) -> AppResult<Json<Vec<SalesRepStats>>> {
     user.require_role(&["ADMIN"])?;
     let mut qb = sqlx::QueryBuilder::new(
-        "SELECT id, auth_user_id, role, name, email, phone, status, partner_company_id, created_at \
-         FROM users WHERE 1=1",
+        "SELECT
+            u.id, u.auth_user_id, u.role, u.name, u.email, u.phone, u.status, u.partner_company_id, u.created_at,
+            (SELECT COUNT(*) FROM customers c WHERE c.created_by_user_id = u.id) AS customers_created,
+            (SELECT COUNT(*) FROM leads l WHERE l.created_by_user_id = u.id) AS leads_submitted,
+            (SELECT COUNT(*) FROM sales s WHERE s.registered_by_user_id = u.id) AS sales_resulted,
+            (SELECT COUNT(*) FROM lead_assignments la JOIN leads l2 ON l2.id = la.lead_id WHERE l2.created_by_user_id = u.id) AS leads_assigned
+         FROM users u WHERE 1=1",
     );
     if let Some(role) = query.role.filter(|r| !r.trim().is_empty()) {
-        qb.push(" AND role = ").push_bind(role.to_uppercase());
+        qb.push(" AND u.role = ").push_bind(role.to_uppercase());
     }
     if let Some(status) = query.status.filter(|s| !s.trim().is_empty()) {
-        qb.push(" AND status = ").push_bind(status.to_lowercase());
+        qb.push(" AND u.status = ").push_bind(status.to_lowercase());
     }
     if let Some(search) = query.search.filter(|s| !s.trim().is_empty()) {
         let p1 = format!("%{search}%");
         let p2 = format!("%{search}%");
-        qb.push(" AND (name ILIKE ")
+        qb.push(" AND (u.name ILIKE ")
             .push_bind(p1)
-            .push(" OR email ILIKE ")
+            .push(" OR u.email ILIKE ")
             .push_bind(p2)
             .push(")");
     }
-    qb.push(" ORDER BY created_at DESC");
-    let rows = qb.build_query_as::<UserRow>().fetch_all(&state.pool).await?;
+    qb.push(" ORDER BY u.created_at DESC");
+    let rows = qb.build_query_as::<SalesRepStats>().fetch_all(&state.pool).await?;
     Ok(Json(rows))
 }
 
