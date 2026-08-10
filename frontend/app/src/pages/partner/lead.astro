@@ -41,8 +41,8 @@ import Layout from '../../layouts/Layout.astro';
         <p class="breadcrumb"><a href="/partner/leads/">Assigned Leads</a> <span>/</span> ${escapeHtml(c.firstName || '')} ${escapeHtml(c.lastName || '')}</p>
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(c.firstName || '')} ${escapeHtml(c.lastName || '')}</h2>
-            <p class="mt-1 text-sm text-surface-500">${escapeHtml(l.categoryName || '')} · ${escapeHtml(a.partnerName || '')}</p>
+            <h2 class="text-2xl font-semibold text-navy-900">${escapeHtml(c.firstName || '')} ${escapeHtml(c.lastName || '')}</h2>
+            <p class="mt-1 text-sm text-navy-500">${escapeHtml(l.categoryName || '')} · ${escapeHtml(a.partnerName || '')}</p>
           </div>
           ${statusBadge(a.status)}
         </div>`;
@@ -51,21 +51,21 @@ import Layout from '../../layouts/Layout.astro';
       customerEl.innerHTML = `
         <div class="card-header"><h3 class="section-title">Customer Details</h3></div>
         <div class="card-body grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div><p class="text-xs text-surface-400 mb-0.5">Phone</p><p class="text-surface-700">${escapeHtml(c.phone || '—')}</p></div>
-          <div><p class="text-xs text-surface-400 mb-0.5">Email</p><p class="text-surface-700">${escapeHtml(c.email || '—')}</p></div>
-          <div><p class="text-xs text-surface-400 mb-0.5">City</p><p class="text-surface-700">${escapeHtml(c.city || '—')}</p></div>
-          <div><p class="text-xs text-surface-400 mb-0.5">Postcode</p><p class="text-surface-700">${escapeHtml(c.postcode || '—')}</p></div>
-          <div class="sm:col-span-2"><p class="text-xs text-surface-400 mb-0.5">Address</p><p class="text-surface-700">${escapeHtml(c.address || '—')}</p></div>
+          <div><p class="text-xs text-navy-400 mb-0.5">Phone</p><p class="text-navy-700">${escapeHtml(c.phone || '—')}</p></div>
+          <div><p class="text-xs text-navy-400 mb-0.5">Email</p><p class="text-navy-700">${escapeHtml(c.email || '—')}</p></div>
+          <div><p class="text-xs text-navy-400 mb-0.5">City</p><p class="text-navy-700">${escapeHtml(c.city || '—')}</p></div>
+          <div><p class="text-xs text-navy-400 mb-0.5">Postcode</p><p class="text-navy-700">${escapeHtml(c.postcode || '—')}</p></div>
+          <div class="sm:col-span-2"><p class="text-xs text-navy-400 mb-0.5">Address</p><p class="text-navy-700">${escapeHtml(c.address || '—')}</p></div>
         </div>`;
 
       const leadEl = document.getElementById('lead-info');
       leadEl.innerHTML = `
         <div class="card-header"><h3 class="section-title">Lead Information</h3></div>
         <div class="card-body grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div><p class="text-xs text-surface-400 mb-0.5">Category</p><p class="font-medium text-surface-800">${escapeHtml(l.categoryName || '—')}</p></div>
-          <div><p class="text-xs text-surface-400 mb-0.5">Created By</p><p class="text-surface-700">${escapeHtml(l.createdBy || '—')}</p></div>
-          <div><p class="text-xs text-surface-400 mb-0.5">Assigned</p><p class="text-surface-700">${formatDate(a.assignedAt)}</p></div>
-          <div><p class="text-xs text-surface-400 mb-0.5">Partner</p><p class="text-surface-700">${escapeHtml(a.partnerName || '—')}</p></div>
+          <div><p class="text-xs text-navy-400 mb-0.5">Category</p><p class="font-medium text-navy-800">${escapeHtml(l.categoryName || '—')}</p></div>
+          <div><p class="text-xs text-navy-400 mb-0.5">Created By</p><p class="text-navy-700">${escapeHtml(l.createdBy || '—')}</p></div>
+          <div><p class="text-xs text-navy-400 mb-0.5">Assigned</p><p class="text-navy-700">${formatDate(a.assignedAt)}</p></div>
+          <div><p class="text-xs text-navy-400 mb-0.5">Partner</p><p class="text-navy-700">${escapeHtml(a.partnerName || '—')}</p></div>
         </div>`;
 
       renderStatusPanel(a, sale);
@@ -85,26 +85,26 @@ import Layout from '../../layouts/Layout.astro';
         resultEl.innerHTML = `
           <div class="card-header"><h3 class="section-title text-green-600">Sale Registered</h3></div>
           <div class="card-body grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-            <div><p class="text-xs text-surface-400 mb-0.5">Sale date</p><p class="text-surface-800">${formatDate(sale.saleDate)}</p></div>
-            <div><p class="text-xs text-surface-400 mb-0.5">Value</p><p class="text-surface-800">${formatMoney(sale.saleValue)}</p></div>
-            <div><p class="text-xs text-surface-400 mb-0.5">Reference</p><p class="text-surface-800">${escapeHtml(sale.reference || '—')}</p></div>
-            <div><p class="text-xs text-surface-400 mb-0.5">Registered by</p><p class="text-surface-800">${escapeHtml(sale.registeredBy || '—')}</p></div>
-            ${sale.notes ? `<div class="col-span-2"><p class="text-xs text-surface-400 mb-0.5">Notes</p><p class="text-surface-800">${escapeHtml(sale.notes)}</p></div>` : ''}
+            <div><p class="text-xs text-navy-400 mb-0.5">Sale date</p><p class="text-navy-800">${formatDate(sale.saleDate)}</p></div>
+            <div><p class="text-xs text-navy-400 mb-0.5">Value</p><p class="text-navy-800">${formatMoney(sale.saleValue)}</p></div>
+            <div><p class="text-xs text-navy-400 mb-0.5">Reference</p><p class="text-navy-800">${escapeHtml(sale.reference || '—')}</p></div>
+            <div><p class="text-xs text-navy-400 mb-0.5">Registered by</p><p class="text-navy-800">${escapeHtml(sale.registeredBy || '—')}</p></div>
+            ${sale.notes ? `<div class="col-span-2"><p class="text-xs text-navy-400 mb-0.5">Notes</p><p class="text-navy-800">${escapeHtml(sale.notes)}</p></div>` : ''}
           </div>`;
       } else {
         resultEl.innerHTML = `
           <div class="card-header"><h3 class="section-title text-red-600">No Sale</h3></div>
-          <div class="card-body text-sm text-surface-700">
-            <p><span class="text-surface-400">Reason:</span> ${escapeHtml(a.noSaleReason || '—')}</p>
-            ${a.noSaleNotes ? `<p class="mt-1"><span class="text-surface-400">Notes:</span> ${escapeHtml(a.noSaleNotes)}</p>` : ''}
+          <div class="card-body text-sm text-navy-700">
+            <p><span class="text-navy-400">Reason:</span> ${escapeHtml(a.noSaleReason || '—')}</p>
+            ${a.noSaleNotes ? `<p class="mt-1"><span class="text-navy-400">Notes:</span> ${escapeHtml(a.noSaleNotes)}</p>` : ''}
           </div>`;
       }
-      panel.innerHTML = `<p class="text-sm text-surface-500">This lead has been closed as <strong>${a.status.replace('_', ' ')}</strong>.</p>`;
+      panel.innerHTML = `<p class="text-sm text-navy-500">This lead has been closed as <strong>${a.status.replace('_', ' ')}</strong>.</p>`;
       return;
     }
 
     panel.innerHTML = `
-      <p class="text-sm text-surface-500 mb-4">Current status: <strong>${statusBadge(a.status)}</strong></p>
+      <p class="text-sm text-navy-500 mb-4">Current status: <strong>${statusBadge(a.status)}</strong></p>
       <div class="flex flex-wrap gap-2">
         <button data-status="NEW" class="status-btn btn-secondary">New</button>
         <button data-status="CONTACTED" class="status-btn btn-secondary">Contacted</button>

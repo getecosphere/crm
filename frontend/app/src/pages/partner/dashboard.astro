@@ -9,7 +9,7 @@ import Layout from '../../layouts/Layout.astro';
     <div class="card">
       <div class="card-header flex items-center justify-between">
         <h3 class="section-title">Recent Assigned Leads</h3>
-        <a href="/partner/leads/" class="text-xs font-medium text-primary-600 hover:text-primary-700">View all →</a>
+        <a href="/partner/leads/" class="text-xs font-medium text-brand-600 hover:text-brand-700">View all →</a>
       </div>
       <div id="recent" class="overflow-x-auto"></div>
     </div>
@@ -28,7 +28,7 @@ import Layout from '../../layouts/Layout.astro';
       const d = await crmGet('/dashboard');
       const s = d.statusCounts || {};
       const cards = [
-        ['Assigned Leads', d.assignedLeads, 'text-surface-900'],
+        ['Assigned Leads', d.assignedLeads, 'text-navy-900'],
         ['New', s.NEW || 0, 'text-blue-600'],
         ['Contacted', s.CONTACTED || 0, 'text-amber-600'],
         ['In Progress', s.IN_PROGRESS || 0, 'text-indigo-600'],
@@ -37,7 +37,7 @@ import Layout from '../../layouts/Layout.astro';
       ];
       stats.innerHTML = cards.map(([label, value, color]) => `
         <div class="card p-4">
-          <p class="text-xs font-medium text-surface-500">${label}</p>
+          <p class="text-xs font-medium text-navy-500">${label}</p>
           <p class="mt-1 text-2xl font-semibold ${color}">${Number(value || 0)}</p>
         </div>`).join('');
 
@@ -50,10 +50,10 @@ import Layout from '../../layouts/Layout.astro';
             <thead><tr><th>Customer</th><th>Category</th><th>Status</th><th>Assigned</th></tr></thead>
             <tbody>${list.map((l) => `
               <tr class="cursor-pointer" onclick="window.location.href='/partner/lead/?id=${l.id}/'">
-                <td class="font-medium text-surface-900">${escapeHtml(l.customerName)}</td>
+                <td class="font-medium text-navy-900">${escapeHtml(l.customerName)}</td>
                 <td>${escapeHtml(l.categoryName)}</td>
                 <td>${statusBadge(l.status)}</td>
-                <td class="text-surface-500">${formatDate(l.assignedAt)}</td>
+                <td class="text-navy-500">${formatDate(l.assignedAt)}</td>
               </tr>`).join('')}
             </tbody>
           </table>`;

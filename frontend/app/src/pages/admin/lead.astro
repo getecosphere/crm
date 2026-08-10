@@ -32,8 +32,8 @@ import Layout from '../../layouts/Layout.astro';
         <p class="breadcrumb"><a href="/admin/leads/">Leads</a> <span>/</span> ${escapeHtml(l.customerName)}</p>
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(l.customerName)}</h2>
-            <p class="mt-1 text-sm text-surface-500">${escapeHtml(d.category?.name || l.categoryName)} · submitted by ${escapeHtml(l.salesRepName)} · ${formatDate(l.createdAt)}</p>
+            <h2 class="text-2xl font-semibold text-navy-900">${escapeHtml(l.customerName)}</h2>
+            <p class="mt-1 text-sm text-navy-500">${escapeHtml(d.category?.name || l.categoryName)} · submitted by ${escapeHtml(l.salesRepName)} · ${formatDate(l.createdAt)}</p>
           </div>
           <div class="flex gap-2">${(l.assignments || []).map((a) => statusBadge(a.status)).join('') || statusBadge('UNASSIGNED')}</div>
         </div>`;
@@ -58,13 +58,13 @@ import Layout from '../../layouts/Layout.astro';
         </div>
         <div class="card-body">
           ${eligible.length === 0
-            ? '<p class="text-sm text-surface-500">No eligible partners are assigned to the <strong>' + escapeHtml(d.category?.name || '') + '</strong> category yet.</p>'
+            ? '<p class="text-sm text-navy-500">No eligible partners are assigned to the <strong>' + escapeHtml(d.category?.name || '') + '</strong> category yet.</p>'
             : `<div id="partner-list" class="space-y-2">
                 ${eligible.map((p) => `
-                  <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-surface-50 cursor-pointer ${already.includes(p.id) ? 'bg-primary-50/40' : ''}">
-                    <input type="checkbox" value="${p.id}" ${already.includes(p.id) ? 'checked' : ''} class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500" />
-                    <span class="text-sm font-medium text-surface-700 flex-1">${escapeHtml(p.name)}</span>
-                    ${already.includes(p.id) ? '<span class="badge bg-primary-50 text-primary-700">Assigned</span>' : ''}
+                  <label class="flex items-center gap-3 p-3 rounded-lg border border-navy-100 hover:bg-paper-50 cursor-pointer ${already.includes(p.id) ? 'bg-brand-50/40' : ''}">
+                    <input type="checkbox" value="${p.id}" ${already.includes(p.id) ? 'checked' : ''} class="w-4 h-4 text-brand-600 rounded border-navy-200 focus:ring-brand-500" />
+                    <span class="text-sm font-medium text-navy-700 flex-1">${escapeHtml(p.name)}</span>
+                    ${already.includes(p.id) ? '<span class="badge bg-brand-50 text-brand-700">Assigned</span>' : ''}
                   </label>`).join('')}
               </div>
               <button id="assign-btn" class="btn-primary w-full mt-4">Save assignments</button>`}
@@ -100,7 +100,7 @@ import Layout from '../../layouts/Layout.astro';
               <thead><tr><th>Partner</th><th>Status</th><th>Assigned</th></tr></thead>
               <tbody>
                 ${list.map((a) => `
-                  <tr><td class="font-medium text-surface-900">${escapeHtml(a.partnerName)}</td><td>${statusBadge(a.status)}</td><td class="text-surface-500">${formatDate(a.assignedAt)}</td></tr>`).join('')}
+                  <tr><td class="font-medium text-navy-900">${escapeHtml(a.partnerName)}</td><td>${statusBadge(a.status)}</td><td class="text-navy-500">${formatDate(a.assignedAt)}</td></tr>`).join('')}
               </tbody>
             </table>
           </div>`;
@@ -112,7 +112,7 @@ import Layout from '../../layouts/Layout.astro';
 
   function field(label, value) {
     return value
-      ? `<div><p class="text-xs text-surface-400 mb-0.5">${label}</p><p class="text-surface-700">${escapeHtml(value)}</p></div>`
+      ? `<div><p class="text-xs text-navy-400 mb-0.5">${label}</p><p class="text-navy-700">${escapeHtml(value)}</p></div>`
       : '';
   }
 

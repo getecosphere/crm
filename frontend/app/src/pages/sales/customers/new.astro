@@ -7,7 +7,7 @@ import Layout from '../../../layouts/Layout.astro';
     <div class="card">
       <div class="card-header">
         <h3 class="section-title">Customer Information</h3>
-        <p class="text-xs text-surface-400 mt-1">Fields marked * are required.</p>
+        <p class="text-xs text-navy-400 mt-1">Fields marked * are required.</p>
       </div>
       <form id="form" class="card-body grid grid-cols-1 sm:grid-cols-2 gap-4" novalidate>
         <div id="form-error" class="hidden sm:col-span-2 p-3 rounded-lg bg-red-50 text-red-600 text-sm"></div>
@@ -50,7 +50,7 @@ import Layout from '../../../layouts/Layout.astro';
     <div class="card">
       <div class="card-header">
         <h3 class="section-title">What is the customer interested in?</h3>
-        <p class="text-xs text-surface-400 mt-1">Select one or more product categories — each becomes a lead.</p>
+        <p class="text-xs text-navy-400 mt-1">Select one or more product categories — each becomes a lead.</p>
       </div>
       <div id="categories" class="card-body grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
     </div>
@@ -80,15 +80,15 @@ import Layout from '../../../layouts/Layout.astro';
     try {
       const cats = await crmGet('/product-categories');
       if (cats.length === 0) {
-        categoriesEl.innerHTML = '<p class="text-sm text-surface-500 col-span-2">No product categories are available yet. Ask your administrator to add some.</p>';
+        categoriesEl.innerHTML = '<p class="text-sm text-navy-500 col-span-2">No product categories are available yet. Ask your administrator to add some.</p>';
         return;
       }
       categoriesEl.innerHTML = cats.map((c) => `
-        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-surface-50 cursor-pointer">
-          <input type="checkbox" value="${c.id}" class="category-check mt-0.5 w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500" />
+        <label class="flex items-start gap-3 p-3 rounded-lg border border-navy-100 hover:bg-paper-50 cursor-pointer">
+          <input type="checkbox" value="${c.id}" class="category-check mt-0.5 w-4 h-4 text-brand-600 rounded border-navy-200 focus:ring-brand-500" />
           <span class="text-sm">
-            <span class="font-medium text-surface-800">${escapeHtml(c.name)}</span>
-            ${c.description ? `<span class="block text-xs text-surface-400">${escapeHtml(c.description)}</span>` : ''}
+            <span class="font-medium text-navy-800">${escapeHtml(c.name)}</span>
+            ${c.description ? `<span class="block text-xs text-navy-400">${escapeHtml(c.description)}</span>` : ''}
           </span>
         </label>`).join('');
     } catch (err) {

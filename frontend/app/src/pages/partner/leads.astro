@@ -41,13 +41,13 @@ import Layout from '../../layouts/Layout.astro';
     if (q) filtered = filtered.filter((l) => l.customerName.toLowerCase().includes(q));
     if (s) filtered = filtered.filter((l) => l.status === s);
     rows.innerHTML = filtered.length === 0
-      ? '<tr><td colspan="4" class="text-center py-10 text-sm text-surface-400">No leads match your filters.</td></tr>'
+      ? '<tr><td colspan="4" class="text-center py-10 text-sm text-navy-400">No leads match your filters.</td></tr>'
       : filtered.map((l) => `
         <tr class="cursor-pointer" onclick="window.location.href='/partner/lead/?id=${l.id}/'">
-          <td class="font-medium text-surface-900">${escapeHtml(l.customerName)}</td>
+          <td class="font-medium text-navy-900">${escapeHtml(l.customerName)}</td>
           <td>${escapeHtml(l.categoryName)}</td>
           <td>${statusBadge(l.status)}</td>
-          <td class="text-surface-500">${formatDate(l.assignedAt)}</td>
+          <td class="text-navy-500">${formatDate(l.assignedAt)}</td>
         </tr>`).join('');
   }
   search.addEventListener('input', render);

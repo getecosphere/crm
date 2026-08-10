@@ -27,35 +27,38 @@ const fullTitle = title === 'CRM' ? 'CRM' : `${title} | CRM`;
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="CRM" />
   <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body class="h-full">
   <div class="min-h-full flex">
-    <aside id="sidebar-root" class="hidden lg:flex lg:w-64 shrink-0 bg-surface-900"></aside>
+    <aside id="sidebar-root" class="hidden lg:flex lg:w-64 shrink-0 bg-navy-900"></aside>
 
     <div class="flex-1 flex flex-col min-w-0">
-      <header class="sticky top-0 z-30 bg-white border-b border-slate-200">
+      <header class="sticky top-0 z-30 bg-white border-b border-navy-100">
         <div class="flex items-center justify-between h-16 px-4 lg:px-6">
           <div class="flex items-center gap-3">
-            <button id="menu-toggle" class="lg:hidden p-2 rounded-lg text-surface-500 hover:bg-surface-100" aria-label="Open navigation menu">
+            <button id="menu-toggle" class="lg:hidden p-2 rounded-lg text-navy-500 hover:bg-navy-100" aria-label="Open navigation menu">
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div>
-              <h1 class="text-base lg:text-lg font-semibold text-surface-900" id="page-title">{title}</h1>
-              <nav class="hidden sm:flex text-xs text-surface-400" id="breadcrumb" aria-label="Breadcrumb"></nav>
+              <h1 class="text-base lg:text-lg font-semibold text-navy-900" id="page-title">{title}</h1>
+              <nav class="hidden sm:flex text-xs text-navy-400" id="breadcrumb" aria-label="Breadcrumb"></nav>
             </div>
           </div>
 
           <div class="flex items-center gap-3">
             <span id="header-role-badge" class="hidden badge"></span>
             <div class="relative hidden" id="notifications-bell-wrap">
-              <button id="btn-notifications" type="button" aria-label="Notifications" aria-expanded="false" aria-controls="notifications-panel" class="relative flex size-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-surface-600 shadow-xs transition-colors hover:bg-surface-50 hover:text-surface-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500">
+              <button id="btn-notifications" type="button" aria-label="Notifications" aria-expanded="false" aria-controls="notifications-panel" class="relative flex size-10 items-center justify-center rounded-lg border border-navy-100 bg-white text-navy-600 shadow-xs transition-colors hover:bg-paper-50 hover:text-navy-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500">
                 <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                <span id="notifications-badge" class="absolute -right-1 -top-1 hidden min-w-[1.125rem] rounded-full bg-primary-600 px-1 py-px text-center text-[10px] font-bold leading-4 text-white shadow-xs">0</span>
+                <span id="notifications-badge" class="absolute -right-1 -top-1 hidden min-w-[1.125rem] rounded-full bg-brand-600 px-1 py-px text-center text-[10px] font-bold leading-4 text-white shadow-xs">0</span>
               </button>
-              <div id="notifications-panel" class="absolute right-0 top-12 z-50 hidden w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-                <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                  <p class="text-sm font-bold text-surface-900">Notifications</p>
-                  <button id="btn-notifications-read-all" type="button" class="text-xs font-bold text-primary-700 hover:underline">Mark all read</button>
+              <div id="notifications-panel" class="absolute right-0 top-12 z-50 hidden w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-navy-100 bg-white shadow-xl">
+                <div class="flex items-center justify-between border-b border-navy-100 px-4 py-3">
+                  <p class="text-sm font-bold text-navy-900">Notifications</p>
+                  <button id="btn-notifications-read-all" type="button" class="text-xs font-bold text-brand-700 hover:underline">Mark all read</button>
                 </div>
                 <div id="notifications-list" class="max-h-96 overflow-y-auto"></div>
               </div>
@@ -63,11 +66,11 @@ const fullTitle = title === 'CRM' ? 'CRM' : `${title} | CRM`;
             <div class="flex items-center gap-2.5">
               <div class="avatar" id="header-avatar"></div>
               <div class="hidden sm:block leading-tight">
-                <p class="text-sm font-medium text-surface-800" id="header-name"></p>
-                <p class="text-xs text-surface-400" id="header-email"></p>
+                <p class="text-sm font-medium text-navy-800" id="header-name"></p>
+                <p class="text-xs text-navy-400" id="header-email"></p>
               </div>
             </div>
-            <button id="logout-btn" class="p-2 rounded-lg text-surface-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Sign out">
+            <button id="logout-btn" class="p-2 rounded-lg text-navy-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Sign out">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
             </button>
           </div>
@@ -139,28 +142,28 @@ const fullTitle = title === 'CRM' ? 'CRM' : `${title} | CRM`;
     const isCurrent = (href) => href === current || (current && href !== '/' && current.startsWith(href));
 
     const html = `
-      <div class="w-64 bg-surface-900 text-white flex flex-col h-full">
-        <div class="flex items-center gap-3 px-6 py-5 border-b border-surface-700">
-          <svg class="w-8 h-8 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      <div class="w-64 bg-navy-900 text-white flex flex-col h-full">
+        <div class="flex items-center gap-3 px-6 py-5 border-b border-navy-700">
+          <svg class="w-8 h-8 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
           <div>
             <p class="text-lg font-semibold tracking-tight leading-tight">CRM</p>
-            <p class="text-[11px] text-surface-400">Lead Distribution</p>
+            <p class="text-[11px] text-navy-400">Lead Distribution</p>
           </div>
         </div>
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           ${items.map((item) => `
-            <a href="${item.href}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isCurrent(item.href) ? 'bg-primary-600 text-white' : 'text-surface-300 hover:bg-surface-700 hover:text-white'}">
+            <a href="${item.href}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isCurrent(item.href) ? 'bg-brand-600 text-white' : 'text-navy-300 hover:bg-navy-700 hover:text-white'}">
               ${iconSvg(item.icon)}
               ${item.label}
             </a>
           `).join('')}
         </nav>
-        <div class="px-3 py-4 border-t border-surface-700">
+        <div class="px-3 py-4 border-t border-navy-700">
           <div class="flex items-center gap-3 px-3">
             <div class="avatar">${initials}</div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium truncate">${user.name || user.username || ''}</p>
-              <p class="text-xs text-surface-400 truncate">${role}</p>
+              <p class="text-xs text-navy-400 truncate">${role}</p>
             </div>
           </div>
         </div>
@@ -232,16 +235,16 @@ const fullTitle = title === 'CRM' ? 'CRM' : `${title} | CRM`;
   const renderNotificationsList = () => {
     if (!notificationsList) return;
     if (!recentNotifications.length) {
-      notificationsList.innerHTML = '<p class="p-6 text-center text-xs text-surface-500">No notifications yet. Activity on your customers, leads, and sales will appear here.</p>';
+      notificationsList.innerHTML = '<p class="p-6 text-center text-xs text-navy-500">No notifications yet. Activity on your customers, leads, and sales will appear here.</p>';
       return;
     }
     notificationsList.innerHTML = recentNotifications.map((notification) => `
-      <a href="${escapeNotification(notification.link || '#')}" data-notification-id="${escapeNotification(notification.id || '')}" class="flex gap-3 border-b border-slate-100 px-4 py-3 transition-colors hover:bg-surface-50 ${notification.read ? '' : 'bg-primary-50/40'}">
-        <span class="mt-1.5 size-2 shrink-0 rounded-full ${notification.read ? 'bg-transparent' : 'bg-primary-600'}" aria-hidden="true"></span>
+      <a href="${escapeNotification(notification.link || '#')}" data-notification-id="${escapeNotification(notification.id || '')}" class="flex gap-3 border-b border-navy-100 px-4 py-3 transition-colors hover:bg-paper-50 ${notification.read ? '' : 'bg-brand-50/40'}">
+        <span class="mt-1.5 size-2 shrink-0 rounded-full ${notification.read ? 'bg-transparent' : 'bg-brand-600'}" aria-hidden="true"></span>
         <span class="min-w-0">
-          <span class="block truncate text-xs font-bold text-surface-900">${escapeNotification(notification.title || 'Notification')}</span>
-          <span class="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-surface-600">${escapeNotification(notification.body || '')}</span>
-          <span class="mt-1 block text-[10px] text-surface-400">${notificationTime(notification.createdAt)}</span>
+          <span class="block truncate text-xs font-bold text-navy-900">${escapeNotification(notification.title || 'Notification')}</span>
+          <span class="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-navy-600">${escapeNotification(notification.body || '')}</span>
+          <span class="mt-1 block text-[10px] text-navy-400">${notificationTime(notification.createdAt)}</span>
         </span>
       </a>`).join('');
     notificationsList.querySelectorAll('[data-notification-id]').forEach((link) => {

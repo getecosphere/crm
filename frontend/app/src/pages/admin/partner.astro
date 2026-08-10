@@ -31,8 +31,8 @@ import Layout from '../../layouts/Layout.astro';
         <p class="breadcrumb"><a href="/admin/partners/">Partners</a> <span>/</span> ${escapeHtml(p.name)}</p>
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(p.name)}</h2>
-            <div class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-surface-500">
+            <h2 class="text-2xl font-semibold text-navy-900">${escapeHtml(p.name)}</h2>
+            <div class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-navy-500">
               ${p.contactPerson ? `<span>👤 ${escapeHtml(p.contactPerson)}</span>` : ''}
               ${p.email ? `<span>✉️ ${escapeHtml(p.email)}</span>` : ''}
               ${p.phone ? `<span>📞 ${escapeHtml(p.phone)}</span>` : ''}
@@ -43,7 +43,7 @@ import Layout from '../../layouts/Layout.astro';
 
       const perf = d.performance || {};
       document.getElementById('performance').innerHTML = [
-        ['Assigned Leads', perf.assigned, 'text-surface-900'],
+        ['Assigned Leads', perf.assigned, 'text-navy-900'],
         ['New', perf.newCount, 'text-blue-600'],
         ['Contacted', perf.contacted, 'text-amber-600'],
         ['In Progress', perf.inProgress, 'text-indigo-600'],
@@ -51,7 +51,7 @@ import Layout from '../../layouts/Layout.astro';
         ['No Sale', perf.noSale, 'text-red-600'],
       ].map(([label, value, color]) => `
         <div class="card p-4">
-          <p class="text-xs font-medium text-surface-500">${label}</p>
+          <p class="text-xs font-medium text-navy-500">${label}</p>
           <p class="mt-1 text-2xl font-semibold ${color}">${Number(value || 0)}</p>
         </div>`).join('');
 
@@ -61,9 +61,9 @@ import Layout from '../../layouts/Layout.astro';
         <div class="card-header"><h3 class="section-title">Product Categories</h3></div>
         <div class="card-body">
           <div class="flex flex-wrap gap-2 mb-4">
-            ${categories.length ? categories.map((c) => `<span class="badge bg-primary-50 text-primary-700">✓ ${escapeHtml(c.name)}</span>`).join('') : '<p class="text-sm text-surface-400">No categories assigned yet.</p>'}
+            ${categories.length ? categories.map((c) => `<span class="badge bg-brand-50 text-brand-700">✓ ${escapeHtml(c.name)}</span>`).join('') : '<p class="text-sm text-navy-400">No categories assigned yet.</p>'}
           </div>
-          <a href="/admin/product-categories/" class="text-xs font-medium text-primary-600 hover:text-primary-700">Manage categories →</a>
+          <a href="/admin/product-categories/" class="text-xs font-medium text-brand-600 hover:text-brand-700">Manage categories →</a>
         </div>`;
 
       const usersEl = document.getElementById('users');
@@ -74,9 +74,9 @@ import Layout from '../../layouts/Layout.astro';
           <table class="table min-w-full">
             <thead><tr><th>Name</th><th>Email</th><th>Status</th></tr></thead>
             <tbody>${partnerUsers.map((u) => `
-              <tr><td class="font-medium text-surface-900">${escapeHtml(u.name)}</td><td class="text-surface-500">${escapeHtml(u.email)}</td><td>${u.status === 'active' ? '<span class="badge bg-green-100 text-green-700">Active</span>' : '<span class="badge bg-slate-100 text-slate-600">Inactive</span>'}</td></tr>`).join('')}
+              <tr><td class="font-medium text-navy-900">${escapeHtml(u.name)}</td><td class="text-navy-500">${escapeHtml(u.email)}</td><td>${u.status === 'active' ? '<span class="badge bg-green-100 text-green-700">Active</span>' : '<span class="badge bg-slate-100 text-slate-600">Inactive</span>'}</td></tr>`).join('')}
             </tbody>
-          </table>` : '<p class="text-sm text-surface-400 p-5">No partner users yet.</p>'}</div>`;
+          </table>` : '<p class="text-sm text-navy-400 p-5">No partner users yet.</p>'}</div>`;
     } catch (err) {
       errorState(header, err.message);
     }

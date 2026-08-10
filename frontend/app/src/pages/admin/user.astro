@@ -27,8 +27,8 @@ import Layout from '../../layouts/Layout.astro';
         <p class="breadcrumb"><a href="/admin/users/">Sales Representatives</a> <span>/</span> ${escapeHtml(u.name)}</p>
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(u.name)}</h2>
-            <p class="mt-1 text-sm text-surface-500">${escapeHtml(u.email)}</p>
+            <h2 class="text-2xl font-semibold text-navy-900">${escapeHtml(u.name)}</h2>
+            <p class="mt-1 text-sm text-navy-500">${escapeHtml(u.email)}</p>
           </div>
           <div class="flex items-center gap-2">
             <span class="badge bg-blue-100 text-blue-700">SALES REP</span>
@@ -37,9 +37,9 @@ import Layout from '../../layouts/Layout.astro';
         </div>`;
 
       document.getElementById('stats').innerHTML = `
-        <div class="card p-6"><p class="text-sm font-medium text-surface-500">Customers Created</p><p class="mt-2 text-3xl font-semibold text-primary-600">${u.customersCreated}</p></div>
-        <div class="card p-6"><p class="text-sm font-medium text-surface-500">Leads Submitted</p><p class="mt-2 text-3xl font-semibold text-blue-600">${u.leadsSubmitted}</p></div>
-        <div class="card p-6"><p class="text-sm font-medium text-surface-500">Sales Resulted</p><p class="mt-2 text-3xl font-semibold text-green-600">${u.salesResulted}</p></div>`;
+        <div class="card p-6"><p class="text-sm font-medium text-navy-500">Customers Created</p><p class="mt-2 text-3xl font-semibold text-brand-600">${u.customersCreated}</p></div>
+        <div class="card p-6"><p class="text-sm font-medium text-navy-500">Leads Submitted</p><p class="mt-2 text-3xl font-semibold text-blue-600">${u.leadsSubmitted}</p></div>
+        <div class="card p-6"><p class="text-sm font-medium text-navy-500">Sales Resulted</p><p class="mt-2 text-3xl font-semibold text-green-600">${u.salesResulted}</p></div>`;
 
       const leadsEl = document.getElementById('leads');
       leadsEl.innerHTML = '<div class="card-header"><h3 class="section-title">Leads Submitted</h3></div><div class="overflow-x-auto"></div>';
@@ -54,10 +54,10 @@ import Layout from '../../layouts/Layout.astro';
             <tbody>
               ${leads.map((l) => `
                 <tr class="cursor-pointer" onclick="window.location.href='/admin/lead/?id=${l.id}/'">
-                  <td class="font-medium text-surface-900">${escapeHtml(l.customerName)}</td>
+                  <td class="font-medium text-navy-900">${escapeHtml(l.customerName)}</td>
                   <td>${escapeHtml(l.categoryName)}</td>
                   <td>${(l.assignments || []).map((a) => statusBadge(a.status)).join('') || statusBadge('UNASSIGNED')}</td>
-                  <td class="text-surface-500">${formatDate(l.createdAt)}</td>
+                  <td class="text-navy-500">${formatDate(l.createdAt)}</td>
                 </tr>`).join('')}
             </tbody>
           </table>`;

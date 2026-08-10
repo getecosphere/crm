@@ -30,16 +30,16 @@ import Layout from '../../layouts/Layout.astro';
         <p class="breadcrumb"><a href="/sales/leads/">My Leads</a> <span>/</span> ${escapeHtml(l.customerName)}</p>
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(l.customerName)}</h2>
-            <p class="mt-1 text-sm text-surface-500">${escapeHtml(d.category?.name || l.categoryName)} · ${formatDate(l.createdAt)}</p>
+            <h2 class="text-2xl font-semibold text-navy-900">${escapeHtml(l.customerName)}</h2>
+            <p class="mt-1 text-sm text-navy-500">${escapeHtml(d.category?.name || l.categoryName)} · ${formatDate(l.createdAt)}</p>
           </div>
           <div class="flex gap-2">${(l.assignments || []).map((a) => statusBadge(a.status)).join('') || statusBadge('UNASSIGNED')}</div>
         </div>
-        ${c.phone ? `<div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm bg-surface-50 rounded-xl p-4">
-          <div><p class="text-xs text-surface-400 mb-0.5">Phone</p><p class="text-surface-700">${escapeHtml(c.phone)}</p></div>
-          ${c.email ? `<div><p class="text-xs text-surface-400 mb-0.5">Email</p><p class="text-surface-700">${escapeHtml(c.email)}</p></div>` : ''}
-          ${c.city ? `<div><p class="text-xs text-surface-400 mb-0.5">City</p><p class="text-surface-700">${escapeHtml(c.city)}</p></div>` : ''}
-          ${c.address ? `<div><p class="text-xs text-surface-400 mb-0.5">Address</p><p class="text-surface-700">${escapeHtml(c.address)}</p></div>` : ''}
+        ${c.phone ? `<div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm bg-paper-50 rounded-xl p-4">
+          <div><p class="text-xs text-navy-400 mb-0.5">Phone</p><p class="text-navy-700">${escapeHtml(c.phone)}</p></div>
+          ${c.email ? `<div><p class="text-xs text-navy-400 mb-0.5">Email</p><p class="text-navy-700">${escapeHtml(c.email)}</p></div>` : ''}
+          ${c.city ? `<div><p class="text-xs text-navy-400 mb-0.5">City</p><p class="text-navy-700">${escapeHtml(c.city)}</p></div>` : ''}
+          ${c.address ? `<div><p class="text-xs text-navy-400 mb-0.5">Address</p><p class="text-navy-700">${escapeHtml(c.address)}</p></div>` : ''}
         </div>` : ''}`;
 
       const list = l.assignments || [];
@@ -48,10 +48,10 @@ import Layout from '../../layouts/Layout.astro';
         emptyState(assignEl, 'Not assigned yet', 'Once an administrator assigns this lead to a partner, you will see the processing status here.');
       } else {
         assignEl.innerHTML = list.map((a) => `
-          <div class="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+          <div class="flex items-center justify-between py-3 border-b border-navy-100 last:border-0">
             <div>
-              <p class="font-medium text-surface-800">${escapeHtml(a.partnerName)}</p>
-              <p class="text-xs text-surface-400">Assigned ${formatDate(a.assignedAt)}</p>
+              <p class="font-medium text-navy-800">${escapeHtml(a.partnerName)}</p>
+              <p class="text-xs text-navy-400">Assigned ${formatDate(a.assignedAt)}</p>
             </div>
             ${statusBadge(a.status)}
           </div>`).join('');

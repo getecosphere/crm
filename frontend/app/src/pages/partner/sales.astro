@@ -5,7 +5,7 @@ import Layout from '../../layouts/Layout.astro';
 <Layout title="Sales" description="Sales your partner company has registered.">
   <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <h2 class="text-lg font-semibold text-surface-900">Registered Sales</h2>
+      <h2 class="text-lg font-semibold text-navy-900">Registered Sales</h2>
     </div>
 
     <div class="card overflow-x-auto">
@@ -34,12 +34,12 @@ import Layout from '../../layouts/Layout.astro';
       }
       rows.innerHTML = sales.map((s) => `
         <tr>
-          <td class="font-medium text-surface-900">${escapeHtml(s.customerName)}</td>
+          <td class="font-medium text-navy-900">${escapeHtml(s.customerName)}</td>
           <td>${escapeHtml(s.categoryName)}</td>
-          <td class="text-surface-500">${formatDate(s.saleDate)}</td>
+          <td class="text-navy-500">${formatDate(s.saleDate)}</td>
           <td class="font-medium text-green-700">${formatMoney(s.saleValue)}</td>
-          <td class="text-surface-500">${escapeHtml(s.reference || '—')}</td>
-          <td class="text-surface-500">${formatDate(s.createdAt)}</td>
+          <td class="text-navy-500">${escapeHtml(s.reference || '—')}</td>
+          <td class="text-navy-500">${formatDate(s.createdAt)}</td>
         </tr>`).join('');
     } catch (err) {
       rows.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-sm text-red-600">${err.message}</td></tr>`;

@@ -7,10 +7,11 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply font-sans text-surface-800 bg-surface-50 antialiased;
+    @apply font-sans text-navy-800 bg-paper-50 antialiased;
+    font-feature-settings: 'cv02', 'cv03';
   }
   ::selection {
-    @apply bg-primary-600 text-white;
+    @apply bg-brand-500 text-white;
   }
   .font-display {
     font-family: theme('fontFamily.display');
@@ -22,64 +23,64 @@
 
 @layer components {
   .card {
-    @apply bg-white rounded-xl border border-slate-200 shadow-sm;
+    @apply bg-white rounded-2xl border border-navy-100 shadow-[0_1px_2px_rgba(15,30,25,0.04)];
   }
   .card-header {
-    @apply px-5 pt-5 pb-4 border-b border-slate-100;
+    @apply px-5 pt-5 pb-4 border-b border-navy-100;
   }
   .card-body {
     @apply p-5;
   }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-1;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-1;
   }
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500;
   }
   .btn-secondary {
-    @apply btn bg-white text-surface-700 border border-slate-300 hover:bg-surface-100 focus:ring-slate-400;
+    @apply btn bg-white text-navy-900 border border-navy-100 hover:bg-paper-100 focus:ring-navy-200 shadow-sm;
   }
   .btn-danger {
     @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
   }
   .btn-ghost {
-    @apply btn text-surface-600 hover:bg-surface-100 focus:ring-slate-300;
+    @apply btn text-navy-600 hover:bg-paper-100 focus:ring-navy-200;
   }
   .input {
-    @apply w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-surface-900 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow text-sm;
+    @apply w-full px-3.5 py-2.5 rounded-lg border border-navy-200 bg-white text-navy-900 placeholder-navy-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-shadow text-sm;
   }
   .label {
-    @apply block text-sm font-medium text-surface-700 mb-1.5;
+    @apply block text-sm font-medium text-navy-700 mb-1.5;
   }
   .table {
     @apply w-full text-sm;
   }
   .table th {
-    @apply px-4 py-3 text-left text-xs font-semibold text-surface-500 uppercase tracking-wide;
+    @apply px-4 py-3 text-left text-xs font-semibold text-navy-500 uppercase tracking-wide;
   }
   .table td {
-    @apply px-4 py-3 text-surface-700 align-middle;
+    @apply px-4 py-3 text-navy-700 align-middle;
   }
   .table tbody tr {
-    @apply border-t border-slate-100 hover:bg-surface-50;
+    @apply border-t border-navy-100 hover:bg-paper-100;
   }
   .table tbody tr:last-child {
-    @apply border-b border-slate-100;
+    @apply border-b border-navy-100;
   }
   .badge {
     @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
   .section-title {
-    @apply text-sm font-semibold text-surface-500 uppercase tracking-wider;
+    @apply text-sm font-semibold text-navy-500 uppercase tracking-wider;
   }
   .breadcrumb {
-    @apply text-xs text-surface-400 font-medium flex items-center gap-1.5 mb-1;
+    @apply text-xs text-navy-400 font-medium flex items-center gap-1.5 mb-1;
   }
   .breadcrumb a {
-    @apply hover:text-primary-600 transition-colors;
+    @apply hover:text-brand-600 transition-colors;
   }
   .avatar {
-    @apply w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-xs font-semibold text-white shrink-0;
+    @apply w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-xs font-semibold text-white shrink-0;
   }
 }
 

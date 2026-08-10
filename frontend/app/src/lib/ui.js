@@ -105,8 +105,8 @@ export function loadingState(container, message = 'Loading…') {
   container.innerHTML = `
     <div class="flex items-center justify-center py-16">
       <div class="flex flex-col items-center gap-3">
-        <div class="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
-        <p class="text-sm text-surface-500">${message}</p>
+        <div class="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
+        <p class="text-sm text-navy-500">${message}</p>
       </div>
     </div>`;
 }
@@ -117,20 +117,20 @@ export function errorState(container, message) {
       <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-3">
         <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
-      <p class="text-sm font-medium text-surface-700">Something went wrong</p>
-      <p class="text-sm text-surface-500 mt-1 max-w-md">${message}</p>
-      <button class="mt-4 inline-flex items-center px-4 py-2 rounded-lg border border-slate-300 text-sm font-medium text-surface-700 hover:bg-surface-100" onclick="window.location.reload()">Try again</button>
+      <p class="text-sm font-medium text-navy-700">Something went wrong</p>
+      <p class="text-sm text-navy-500 mt-1 max-w-md">${message}</p>
+      <button class="mt-4 inline-flex items-center px-4 py-2 rounded-lg border border-navy-200 text-sm font-medium text-navy-700 hover:bg-navy-100" onclick="window.location.reload()">Try again</button>
     </div>`;
 }
 
 export function emptyState(container, title, hint, actionHtml = '') {
   container.innerHTML = `
     <div class="flex flex-col items-center justify-center py-16 text-center px-6">
-      <div class="w-12 h-12 rounded-full bg-surface-100 flex items-center justify-center mb-3">
-        <svg class="w-6 h-6 text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+      <div class="w-12 h-12 rounded-full bg-navy-100 flex items-center justify-center mb-3">
+        <svg class="w-6 h-6 text-navy-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
       </div>
-      <p class="text-sm font-medium text-surface-700">${title}</p>
-      <p class="text-sm text-surface-500 mt-1 max-w-sm">${hint}</p>
+      <p class="text-sm font-medium text-navy-700">${title}</p>
+      <p class="text-sm text-navy-500 mt-1 max-w-sm">${hint}</p>
       ${actionHtml ? `<div class="mt-4">${actionHtml}</div>` : ''}
     </div>`;
 }
@@ -138,9 +138,9 @@ export function emptyState(container, title, hint, actionHtml = '') {
 export function skeletonRows(container, rows = 5, cols = 5) {
   let html = '';
   for (let r = 0; r < rows; r++) {
-    html += '<tr class="border-b border-slate-100">';
+    html += '<tr class="border-b border-navy-100">';
     for (let c = 0; c < cols; c++) {
-      html += `<td class="px-4 py-3"><div class="h-4 rounded bg-surface-100 animate-pulse"></div></td>`;
+      html += `<td class="px-4 py-3"><div class="h-4 rounded bg-navy-100 animate-pulse"></div></td>`;
     }
     html += '</tr>';
   }

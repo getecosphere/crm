@@ -26,8 +26,8 @@ import Layout from '../../layouts/Layout.astro';
       const c = d.customer;
       header.innerHTML = `
         <p class="breadcrumb"><a href="/sales/customers/">My Customers</a> <span>/</span> ${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</p>
-        <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</h2>
-        <div class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-surface-500">
+        <h2 class="text-2xl font-semibold text-navy-900">${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</h2>
+        <div class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-navy-500">
           <span>📞 ${escapeHtml(c.phone)}</span>
           ${c.email ? `<span>✉️ ${escapeHtml(c.email)}</span>` : ''}
           ${c.city ? `<span>📍 ${escapeHtml(c.city)}</span>` : ''}
@@ -43,9 +43,9 @@ import Layout from '../../layouts/Layout.astro';
             <thead><tr><th>Product Category</th><th>Created</th><th></th></tr></thead>
             <tbody>${d.leads.map((l) => `
               <tr class="cursor-pointer" onclick="window.location.href='/sales/lead/?id=${l.id}/'">
-                <td class="font-medium text-surface-900">${escapeHtml(l.categoryName)}</td>
-                <td class="text-surface-500">${formatDate(l.createdAt)}</td>
-                <td><a href="/sales/lead/?id=${l.id}/" class="text-xs font-medium text-primary-600 hover:text-primary-700">Open lead →</a></td>
+                <td class="font-medium text-navy-900">${escapeHtml(l.categoryName)}</td>
+                <td class="text-navy-500">${formatDate(l.createdAt)}</td>
+                <td><a href="/sales/lead/?id=${l.id}/" class="text-xs font-medium text-brand-600 hover:text-brand-700">Open lead →</a></td>
               </tr>`).join('')}
             </tbody>
           </table>`;

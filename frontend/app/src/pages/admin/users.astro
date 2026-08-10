@@ -6,7 +6,7 @@ import Layout from '../../layouts/Layout.astro';
   <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div class="relative w-full sm:w-80">
-        <svg class="w-4 h-4 text-surface-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <svg class="w-4 h-4 text-navy-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         <input id="search" type="search" placeholder="Search representatives…" class="input pl-9" />
       </div>
       <button id="open-modal" class="btn-primary">
@@ -15,7 +15,7 @@ import Layout from '../../layouts/Layout.astro';
       </button>
     </div>
 
-    <p class="text-sm text-surface-500" id="count-label"></p>
+    <p class="text-sm text-navy-500" id="count-label"></p>
 
     <div class="card overflow-x-auto">
       <table class="table min-w-full">
@@ -30,8 +30,8 @@ import Layout from '../../layouts/Layout.astro';
   <div id="modal" class="hidden fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
     <div class="absolute inset-0 bg-black/50" onclick="document.getElementById('modal').classList.add('hidden')"></div>
     <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg mt-16 p-6">
-      <h3 class="text-lg font-semibold text-surface-900 mb-1">Add Sales Representative</h3>
-      <p class="text-sm text-surface-500 mb-5">Creates the login account and provisions the representative in the CRM.</p>
+      <h3 class="text-lg font-semibold text-navy-900 mb-1">Add Sales Representative</h3>
+      <p class="text-sm text-navy-500 mb-5">Creates the login account and provisions the representative in the CRM.</p>
       <form id="form" class="space-y-4" novalidate>
         <div id="form-error" class="hidden p-3 rounded-lg bg-red-50 text-red-600 text-sm"></div>
         <div>
@@ -77,16 +77,16 @@ import Layout from '../../layouts/Layout.astro';
     const filtered = all.filter((u) => (u.name + ' ' + u.email).toLowerCase().includes(q));
     countLabel.textContent = `Showing ${filtered.length} of ${all.length} representatives`;
     rows.innerHTML = filtered.length === 0
-      ? '<tr><td colspan="7" class="text-center py-10 text-sm text-surface-400">No representatives match your search.</td></tr>'
+      ? '<tr><td colspan="7" class="text-center py-10 text-sm text-navy-400">No representatives match your search.</td></tr>'
       : filtered.map((u) => `
         <tr class="cursor-pointer" onclick="window.location.href='/admin/user/?id=${u.id}/'">
-          <td class="font-medium text-surface-900">${escapeHtml(u.name)}</td>
-          <td class="text-surface-500">${escapeHtml(u.email)}</td>
-          <td><span class="badge bg-primary-50 text-primary-700">${u.customersCreated ?? 0}</span></td>
+          <td class="font-medium text-navy-900">${escapeHtml(u.name)}</td>
+          <td class="text-navy-500">${escapeHtml(u.email)}</td>
+          <td><span class="badge bg-brand-50 text-brand-700">${u.customersCreated ?? 0}</span></td>
           <td><span class="badge bg-blue-50 text-blue-700">${u.leadsSubmitted ?? 0}</span></td>
           <td><span class="badge bg-green-50 text-green-700">${u.salesResulted ?? 0}</span></td>
           <td>${activeBadge(u.status)}</td>
-          <td><a href="/admin/user/?id=${u.id}/" class="text-xs font-medium text-primary-600 hover:text-primary-700">View →</a></td>
+          <td><a href="/admin/user/?id=${u.id}/" class="text-xs font-medium text-brand-600 hover:text-brand-700">View →</a></td>
         </tr>`).join('');
   }
   search.addEventListener('input', render);

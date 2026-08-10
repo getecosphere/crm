@@ -8,7 +8,7 @@ import Layout from '../../layouts/Layout.astro';
     <div class="card">
       <div class="card-header"><h3 class="section-title">Assigned Partners</h3></div>
       <div class="card-body">
-        <p class="text-sm text-surface-500 mb-4">Only partners assigned to this category are eligible to receive leads for it.</p>
+        <p class="text-sm text-navy-500 mb-4">Only partners assigned to this category are eligible to receive leads for it.</p>
         <div id="partner-list" class="space-y-2"></div>
         <button id="save-btn" class="btn-primary mt-4">Save assignment</button>
       </div>
@@ -36,15 +36,15 @@ import Layout from '../../layouts/Layout.astro';
 
       header.innerHTML = `
         <p class="breadcrumb"><a href="/admin/product-categories/">Product Categories</a> <span>/</span> ${escapeHtml(c.name)}</p>
-        <h2 class="text-2xl font-semibold text-surface-900">${escapeHtml(c.name)}</h2>
-        ${c.description ? `<p class="mt-1 text-sm text-surface-500">${escapeHtml(c.description)}</p>` : ''}`;
+        <h2 class="text-2xl font-semibold text-navy-900">${escapeHtml(c.name)}</h2>
+        ${c.description ? `<p class="mt-1 text-sm text-navy-500">${escapeHtml(c.description)}</p>` : ''}`;
 
       list.innerHTML = partners.length === 0
-        ? '<p class="text-sm text-surface-400">Create partner companies first, then assign them to this category.</p>'
+        ? '<p class="text-sm text-navy-400">Create partner companies first, then assign them to this category.</p>'
         : partners.map((p) => `
-          <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-surface-50 cursor-pointer ${assigned.has(p.id) ? 'bg-primary-50/40' : ''}">
-            <input type="checkbox" value="${p.id}" ${assigned.has(p.id) ? 'checked' : ''} class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500" />
-            <span class="text-sm font-medium text-surface-700 flex-1">${escapeHtml(p.name)}</span>
+          <label class="flex items-center gap-3 p-3 rounded-lg border border-navy-100 hover:bg-paper-50 cursor-pointer ${assigned.has(p.id) ? 'bg-brand-50/40' : ''}">
+            <input type="checkbox" value="${p.id}" ${assigned.has(p.id) ? 'checked' : ''} class="w-4 h-4 text-brand-600 rounded border-navy-200 focus:ring-brand-500" />
+            <span class="text-sm font-medium text-navy-700 flex-1">${escapeHtml(p.name)}</span>
           </label>`).join('');
 
       document.getElementById('save-btn').addEventListener('click', async () => {

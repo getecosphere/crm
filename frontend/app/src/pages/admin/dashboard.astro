@@ -30,7 +30,7 @@ import Layout from '../../layouts/Layout.astro';
     <div class="card">
       <div class="card-header flex items-center justify-between">
         <h3 class="section-title">Recent Leads</h3>
-        <a href="/admin/leads/" class="text-xs font-medium text-primary-600 hover:text-primary-700">View all →</a>
+        <a href="/admin/leads/" class="text-xs font-medium text-brand-600 hover:text-brand-700">View all →</a>
       </div>
       <div id="recent-leads" class="overflow-x-auto"></div>
     </div>
@@ -54,8 +54,8 @@ import Layout from '../../layouts/Layout.astro';
       <div class="card p-5">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="text-sm font-medium text-surface-500">${label}</p>
-            <p class="mt-2 text-3xl font-semibold text-surface-900">${Number(value || 0).toLocaleString()}</p>
+            <p class="text-sm font-medium text-navy-500">${label}</p>
+            <p class="mt-2 text-3xl font-semibold text-navy-900">${Number(value || 0).toLocaleString()}</p>
           </div>
           <div class="w-11 h-11 rounded-lg ${accent} flex items-center justify-center shrink-0">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${icon}"/></svg>
@@ -66,17 +66,17 @@ import Layout from '../../layouts/Layout.astro';
 
   function rankList(rows, emptyText) {
     if (!rows || rows.length === 0) {
-      return `<p class="text-sm text-surface-400 py-2">${emptyText}</p>`;
+      return `<p class="text-sm text-navy-400 py-2">${emptyText}</p>`;
     }
     const max = Math.max(...rows.map((r) => Number(r.count) || 0), 1);
     return rows.map((r) => `
       <div class="py-2">
         <div class="flex items-center justify-between mb-1">
-          <span class="text-sm font-medium text-surface-700 truncate">${escapeHtml(r.name || 'Unknown')}</span>
-          <span class="text-sm font-semibold text-primary-600">${Number(r.count || 0)}</span>
+          <span class="text-sm font-medium text-navy-700 truncate">${escapeHtml(r.name || 'Unknown')}</span>
+          <span class="text-sm font-semibold text-brand-600">${Number(r.count || 0)}</span>
         </div>
-        <div class="h-1.5 rounded-full bg-surface-100 overflow-hidden">
-          <div class="h-full bg-primary-500 rounded-full" style="width:${Math.max((Number(r.count) / max) * 100, 2)}%"></div>
+        <div class="h-1.5 rounded-full bg-navy-100 overflow-hidden">
+          <div class="h-full bg-brand-500 rounded-full" style="width:${Math.max((Number(r.count) / max) * 100, 2)}%"></div>
         </div>
       </div>`).join('');
   }
@@ -87,7 +87,7 @@ import Layout from '../../layouts/Layout.astro';
       const d = await crmGet('/dashboard');
 
       els.stats.innerHTML = [
-        card('M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'Total Customers', d.totalCustomers, 'bg-primary-50 text-primary-600'),
+        card('M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'Total Customers', d.totalCustomers, 'bg-brand-50 text-brand-600'),
         card('M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01', 'Total Leads', d.totalLeads, 'bg-blue-50 text-blue-600'),
         card('M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'Sales', d.totalSales, 'bg-green-50 text-green-600'),
         card('M12 6v6m0 0l3-3m-3 3l-3-3M7 13v5m10-5v5', 'Unassigned Leads', d.unassignedLeads, d.unassignedLeads > 0 ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-500'),
@@ -109,10 +109,10 @@ import Layout from '../../layouts/Layout.astro';
             <tbody>
               ${recent.map((l) => `
                 <tr class="cursor-pointer" onclick="window.location.href='/admin/lead/?id=${l.id}/'">
-                  <td class="font-medium text-surface-900">${escapeHtml(l.customerName)}</td>
+                  <td class="font-medium text-navy-900">${escapeHtml(l.customerName)}</td>
                   <td>${escapeHtml(l.categoryName)}</td>
                   <td>${statusBadge(l.status)}</td>
-                  <td class="text-surface-500">${formatDate(l.createdAt)}</td>
+                  <td class="text-navy-500">${formatDate(l.createdAt)}</td>
                 </tr>`).join('')}
             </tbody>
           </table>`;
