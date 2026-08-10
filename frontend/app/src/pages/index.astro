@@ -62,8 +62,7 @@ const description = 'A focused lead distribution CRM. Sales teams register custo
       </nav>
 
       <div class="flex items-center gap-2.5">
-        <a href="/auth/login/" class="rounded-lg border border-navy-100 bg-white px-4 py-2 text-sm font-bold text-navy-900 shadow-sm transition-colors hover:bg-paper-100">Sign in</a>
-        <a href="/auth/login/" id="header-dashboard" class="hidden rounded-lg bg-navy-900 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-navy-800">Open dashboard</a>
+        <a href="/auth/login/" id="header-signin" class="rounded-lg border border-navy-100 bg-white px-4 py-2 text-sm font-bold text-navy-900 shadow-sm transition-colors hover:bg-paper-100">Sign in</a>
       </div>
     </div>
   </header>
@@ -83,7 +82,7 @@ const description = 'A focused lead distribution CRM. Sales teams register custo
             Sales representatives register customers and submit product-interest leads in seconds. Administrators route those leads to partner companies. Partners track every conversation and record the outcome — a sale or a no-sale — with full visibility at every step.
           </p>
           <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <a href="/auth/login/" class="rounded-lg bg-navy-900 px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-navy-800">Sign in to your workspace</a>
+            <a href="/auth/login/" id="hero-signin" class="rounded-lg bg-navy-900 px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-navy-800">Sign in to your workspace</a>
             <a href="#how-it-works" class="rounded-lg border border-navy-100 bg-white px-6 py-3 text-sm font-bold text-navy-900 shadow-sm transition-colors hover:bg-paper-100">See how it works</a>
           </div>
         </div>
@@ -231,7 +230,7 @@ const description = 'A focused lead distribution CRM. Sales teams register custo
         <h2 class="font-display text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Ready to route your first lead?</h2>
         <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-navy-200">Sign in to your workspace and continue where your team left off.</p>
         <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <a href="/auth/login/" class="rounded-lg bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-700">Sign in</a>
+          <a href="/auth/login/" id="cta-signin" class="rounded-lg bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-700">Sign in</a>
           <a href="/setup/" class="rounded-lg border border-navy-700 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-navy-800">Set up a workspace</a>
         </div>
       </div>
@@ -287,16 +286,26 @@ const description = 'A focused lead distribution CRM. Sales teams register custo
     const session = readSession();
     const user = session?.user;
     if (!user?.role) return;
-    const dashboard = document.getElementById('header-dashboard');
-    if (dashboard) {
-      dashboard.classList.remove('hidden');
-      dashboard.classList.add('inline-flex');
-      dashboard.setAttribute('href', roleHome(user.role) || '/auth/login/');
+    const home = roleHome(user.role) || '/auth/login/';
+
+    const headerSignin = document.getElementById('header-signin');
+    if (headerSignin && session?.token) {
+      headerSignin.textContent = 'Open dashboard';
+      headerSignin.setAttribute('href', home);
+      headerSignin.classList.remove('border', 'border-navy-100', 'bg-white', 'text-navy-900');
+      headerSignin.classList.add('bg-navy-900', 'text-white');
     }
-    const heroSignIn = document.querySelector('a[href="/auth/login/"]');
-    if (heroSignIn && session?.token && roleHome(user.role)) {
+
+    const heroSignIn = document.getElementById('hero-signin');
+    if (heroSignIn && session?.token) {
       heroSignIn.textContent = 'Open my dashboard';
-      heroSignIn.setAttribute('href', roleHome(user.role));
+      heroSignIn.setAttribute('href', home);
+    }
+
+    const ctaSignIn = document.getElementById('cta-signin');
+    if (ctaSignIn && session?.token) {
+      ctaSignIn.textContent = 'Open my dashboard';
+      ctaSignIn.setAttribute('href', home);
     }
   }
 
