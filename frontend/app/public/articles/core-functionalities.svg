@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="t">
+  <title id="t">The core functionalities of the CRM</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#fffdf7"/>
+      <stop offset="0.6" stop-color="#faf6ec"/>
+      <stop offset="1" stop-color="#f3ecd9"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f6fbf8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="1370" cy="150" r="240" fill="#f3c4ab" opacity="0.5"/>
+  <circle cx="160" cy="780" r="280" fill="#c6d9d0" opacity="0.55"/>
+  <circle cx="1420" cy="780" r="160" fill="#a7f3d0" opacity="0.4"/>
+
+  <g transform="translate(140,120)" font-family="'Bricolage Grotesque', 'Arial Black', sans-serif">
+    <text x="0" y="0" font-size="80" font-weight="800" fill="#0f1e1a" letter-spacing="-1">Core functionalities,</text>
+    <text x="0" y="110" font-size="80" font-weight="800" fill="#0f1e1a" letter-spacing="-1">one clear workflow</text>
+  </g>
+  <text x="140" y="300" font-family="Onest, 'Helvetica Neue', sans-serif" font-size="30" fill="#4d806d">Customers · Leads · Assignments · Sales</text>
+
+  <g transform="translate(140,360)">
+    <g font-family="'Bricolage Grotesque', sans-serif">
+      <rect x="0" y="0" width="300" height="170" rx="20" fill="url(#card)" stroke="#e2ece7" stroke-width="2"/>
+      <text x="30" y="52" font-size="30" font-weight="800" fill="#0f1e1a">Register</text>
+      <text x="30" y="90" font-size="19" fill="#4d806d">Capture customers and their product interests in one action.</text>
+      <circle cx="258" cy="46" r="18" fill="#059669"/>
+      <text x="258" y="55" font-size="24" fill="#fff" text-anchor="middle">1</text>
+    </g>
+    <g transform="translate(330,0)" font-family="'Bricolage Grotesque', sans-serif">
+      <rect x="0" y="0" width="300" height="170" rx="20" fill="url(#card)" stroke="#e2ece7" stroke-width="2"/>
+      <text x="30" y="52" font-size="30" font-weight="800" fill="#0f1e1a">Route</text>
+      <text x="30" y="90" font-size="19" fill="#4d806d">Admins distribute each lead to eligible partner companies.</text>
+      <circle cx="258" cy="46" r="18" fill="#0f1e1a"/>
+      <text x="258" y="55" font-size="24" fill="#fff" text-anchor="middle">2</text>
+    </g>
+    <g transform="translate(660,0)" font-family="'Bricolage Grotesque', sans-serif">
+      <rect x="0" y="0" width="300" height="170" rx="20" fill="url(#card)" stroke="#e2ece7" stroke-width="2"/>
+      <text x="30" y="52" font-size="30" font-weight="800" fill="#0f1e1a">Process</text>
+      <text x="30" y="90" font-size="19" fill="#4d806d">Partners move leads through their lifecycle with full visibility.</text>
+      <circle cx="258" cy="46" r="18" fill="#d65f2e"/>
+      <text x="258" y="55" font-size="24" fill="#fff" text-anchor="middle">3</text>
+    </g>
+    <g transform="translate(0,200)" font-family="'Bricolage Grotesque', sans-serif">
+      <rect x="0" y="0" width="300" height="150" rx="20" fill="url(#card)" stroke="#e2ece7" stroke-width="2"/>
+      <text x="30" y="52" font-size="28" font-weight="800" fill="#0f1e1a">Close</text>
+      <text x="30" y="88" font-size="19" fill="#4d806d">Record every sale or no-sale, with a reason, per partner.</text>
+      <circle cx="258" cy="46" r="18" fill="#059669"/>
+      <text x="258" y="55" font-size="24" fill="#fff" text-anchor="middle">4</text>
+    </g>
+    <g transform="translate(330,200)" font-family="'Bricolage Grotesque', sans-serif">
+      <rect x="0" y="0" width="300" height="150" rx="20" fill="url(#card)" stroke="#e2ece7" stroke-width="2"/>
+      <text x="30" y="52" font-size="28" font-weight="800" fill="#0f1e1a">Measure</text>
+      <text x="30" y="88" font-size="19" fill="#4d806d">Dashboards and reports roll performance up in real time.</text>
+      <circle cx="258" cy="46" r="18" fill="#b84a22"/>
+      <text x="258" y="55" font-size="24" fill="#fff" text-anchor="middle">5</text>
+    </g>
+    <g transform="translate(660,200)" font-family="'Bricolage Grotesque', sans-serif">
+      <rect x="0" y="0" width="300" height="150" rx="20" fill="url(#card)" stroke="#e2ece7" stroke-width="2"/>
+      <text x="30" y="52" font-size="28" font-weight="800" fill="#0f1e1a">Trust</text>
+      <text x="30" y="88" font-size="19" fill="#4d806d">Tenant-scoped, server-enforced access for every role.</text>
+      <circle cx="258" cy="46" r="18" fill="#2f5345"/>
+      <text x="258" y="55" font-size="24" fill="#fff" text-anchor="middle">6</text>
+    </g>
+  </g>
+</svg>

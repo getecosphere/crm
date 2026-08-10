@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="t">
+  <title id="t">CRM in the AI era</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f1e1a"/>
+      <stop offset="0.55" stop-color="#1b3029"/>
+      <stop offset="1" stop-color="#27433a"/>
+    </linearGradient>
+    <linearGradient id="orb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="orb2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eb9e77"/>
+      <stop offset="1" stop-color="#d65f2e"/>
+    </linearGradient>
+    <pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse">
+      <path d="M56 0H0v56" fill="none" stroke="#2f5345" stroke-opacity="0.35" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+  <circle cx="1250" cy="180" r="240" fill="url(#orb)" opacity="0.35"/>
+  <circle cx="220" cy="760" r="280" fill="url(#orb2)" opacity="0.28"/>
+  <circle cx="1380" cy="720" r="120" fill="url(#orb)" opacity="0.18"/>
+
+  <g transform="translate(120,190)">
+    <g stroke="#0f1e1a" stroke-width="0" opacity="0.9">
+      <rect x="0" y="0" width="200" height="140" rx="24" fill="none" stroke="#0f1e1a"/>
+    </g>
+  </g>
+
+  <g transform="translate(118,188)" opacity="0.95">
+    <rect width="210" height="148" rx="26" fill="none" stroke="#34d399" stroke-width="3"/>
+    <circle cx="105" cy="74" r="34" fill="none" stroke="#faf6ec" stroke-width="3"/>
+    <path d="M105 62v12M105 86v-4M105 74h14M105 74H91" stroke="#faf6ec" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="105" cy="74" r="4" fill="#eb9e77"/>
+    <path d="M170 40h18a8 8 0 018 8v60a8 8 0 01-8 8h-18M170 40l-14 14M170 40v14" stroke="#34d399" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="92" cy="112" r="6" fill="#059669"/>
+    <circle cx="120" cy="116" r="4" fill="#059669" opacity="0.6"/>
+    <circle cx="140" cy="110" r="3" fill="#059669" opacity="0.4"/>
+  </g>
+
+  <text x="150" y="520" font-family="'Bricolage Grotesque', 'Arial Black', sans-serif" font-size="88" font-weight="800" fill="#faf6ec" letter-spacing="-1">CRM in the AI era</text>
+  <text x="152" y="620" font-family="Onest, 'Helvetica Neue', sans-serif" font-size="36" fill="#a0bfb3" letter-spacing="0.5">How intelligence is changing how teams sell — and what stays human.</text>
+
+  <g transform="translate(150,700)">
+    <rect width="220" height="12" rx="6" fill="#2f5345"/>
+    <rect width="164" height="12" rx="6" fill="url(#orb)"/>
+  </g>
+</svg>
