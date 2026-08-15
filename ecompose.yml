@@ -1,0 +1,44 @@
+# ecompose v2 — crm
+# CRM estate (crm.stuff8.com): Rust/Postgres backend + Astro SSR frontend
+# composed from source (this repo). auth, notifications, articles composed
+# from the LXS registry.
+#
+# Builds happen on the developer machine; the server is executable-only.
+
+project: crm
+main: crm
+
+estates:
+  crm:
+    hostname: crm.stuff8.com
+    ingress: tunnel
+    cloudflare_account: stuff8
+    services:
+      - frontend
+      - backend
+      - auth-backend
+      - notifications-backend
+      - articles-backend
+
+services:
+  frontend:
+    path: frontend
+    runtimes: [node@20]
+
+  backend:
+    path: backend
+    binary: crm-backend
+    runtimes: [rust, postgresql@15]
+
+  auth-backend:
+    lxs: auth@1.0.2
+    grants: { secrets: [JWT_SECRET, MONGODB_URI] }
+
+  notifications-backend:
+    lxs: notifications@1.0.2
+    grants: { secrets: [JWT_SECRET, MONGODB_URI] }
+
+  articles-backend:
+    lxs: articles@1.0.0
+    runtimes: [postgresql@15]
+    grants: { secrets: [JWT_SECRET, DATABASE_URL] }
