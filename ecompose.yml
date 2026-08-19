@@ -27,6 +27,7 @@ estates:
       - auth-backend
       - notifications-backend
       - articles-backend
+      - articles-ui
 
 services:
   frontend:
@@ -50,3 +51,7 @@ services:
     lxs: articles@1.0.0
     runtimes: [postgresql@15]
     grants: { secrets: [JWT_SECRET, DATABASE_URL] }
+
+  articles-ui:
+    lxs: articles-ui@0.1.0
+    grants: { secrets: [SERVER_PORT, ARTICLES_API_URL, PUBLIC_SITE_URL] }

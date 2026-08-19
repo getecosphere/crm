@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import { Articles } from '@articles/frontend';
 
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || '';
 const pageUrl = siteUrl ? `${siteUrl}/` : '/';
@@ -220,7 +219,12 @@ const description = 'A focused lead distribution CRM. Sales teams register custo
           </div>
           <a href="/articles/" class="rounded-lg border border-navy-100 bg-white px-5 py-2.5 text-sm font-bold text-navy-900 shadow-sm transition-colors hover:bg-paper-100">View all articles</a>
         </div>
-        <Articles limit={3} />
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <a href="/articles/" class="rounded-xl border border-navy-100 bg-white p-5 shadow-[0_1px_2px_rgba(15,30,25,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-md">
+            <h3 class="font-display text-lg font-extrabold leading-snug tracking-tight text-navy-900">Read the latest from the CRM team</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">Stories, guides, and updates about the platform — visit the articles page.</p>
+          </a>
+        </div>
       </div>
     </section>
 
