@@ -7,6 +7,14 @@
 
 project: crm
 main: crm
+description: "CRM (crm.stuff8.com) — manajemen relasi pelanggan: Rust/Postgres backend + Astro SSR frontend + auth/notifications/articles LXS."
+
+ct:
+  id: 201
+
+data:
+  postgres: 203
+  mongo: 203
 
 estates:
   crm:
