@@ -29,6 +29,13 @@ estates:
       - articles-backend
       - articles-ui
 
+expose:
+  enabled: true
+  hostname: crm.stuff8.com
+  service: frontend
+  proxy_ct: 200
+  cloudflare_account: stuff8
+
 services:
   frontend:
     path: frontend
