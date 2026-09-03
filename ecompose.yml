@@ -60,5 +60,7 @@ services:
     grants: { secrets: [JWT_SECRET, DATABASE_URL] }
 
   articles-ui:
-    lxs: articles-ui@0.1.0
+    lxs: articles-ui@0.2.0
     grants: { secrets: [SERVER_PORT, ARTICLES_API_URL, PUBLIC_SITE_URL] }
+    config:
+      ARTICLES_API_URL: http://127.0.0.1:20009/api/articles
